@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>天体谱线连连看</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230d1424'/%3E%3Cpath d='M6 46 Q20 46 25 18 Q30 46 58 46' fill='none' stroke='%2342a5f5' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{--S:78px;--ink:#e8eef8;--sub:#93a2ba;}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;}
+html,body{min-height:100%;}
+body{
+  background:#070b16;
+  background-image:
+    radial-gradient(1.2px 1.2px at 12% 22%, rgba(255,255,255,.8) 45%, transparent 55%),
+    radial-gradient(1px 1px at 28% 68%, rgba(255,255,255,.6) 45%, transparent 55%),
+    radial-gradient(1.4px 1.4px at 55% 12%, rgba(255,255,255,.7) 45%, transparent 55%),
+    radial-gradient(1px 1px at 72% 40%, rgba(255,255,255,.55) 45%, transparent 55%),
+    radial-gradient(1.2px 1.2px at 86% 76%, rgba(255,255,255,.7) 45%, transparent 55%),
+    radial-gradient(1px 1px at 40% 88%, rgba(255,255,255,.5) 45%, transparent 55%),
+    radial-gradient(1px 1px at 64% 60%, rgba(255,255,255,.4) 45%, transparent 55%),
+    radial-gradient(1100px 550px at 50% -10%, #1b2a52 0%, transparent 60%);
+  background-attachment:fixed;
+  color:var(--ink);
+  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:16px 10px 30px;overflow-x:hidden;
+}
+header{text-align:center;}
+h1{font-size:24px;letter-spacing:2px;font-weight:800;
+  background:linear-gradient(90deg,#ef5350,#ff9800,#fdd835,#66bb6a,#42a5f5,#ba68c8);
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.sub{font-size:12.5px;color:var(--sub);margin-top:4px;}
+#hud{display:flex;gap:16px;font-size:13px;color:var(--sub);flex-wrap:wrap;justify-content:center;}
+#hud b{color:#fff;font-variant-numeric:tabular-nums;margin-left:4px;}
+#btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+button{background:#141f3a;border:1px solid #33456e;color:#dbe5f5;border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit;}
+button:hover{background:#1c2b50;border-color:#4a619a;}
+#boardBox{position:relative;touch-action:manipulation;}
+#pathLayer{position:absolute;pointer-events:none;overflow:visible;z-index:30;}
+.tile{position:absolute;display:flex;flex-direction:column;gap:2px;padding:4px 5px 3px;
+  border:2px solid var(--bc);border-radius:10px;
+  background:linear-gradient(165deg,var(--bt),#0c1220 70%);
+  cursor:pointer;transition:transform .28s,opacity .28s,box-shadow .15s,filter .15s;}
+.tile:hover{filter:brightness(1.18);}
+.tile.sel{box-shadow:0 0 0 2px #fff,0 0 16px var(--bc);z-index:5;}
+.tile.hint{animation:hintp .55s infinite alternate;}
+.tile.dead{transform:scale(.15);opacity:0;pointer-events:none;}
+.tile.pop{animation:pop .3s both;}
+.tile.pre{animation:deal .35s both;}
+.tile.shake{animation:shake .3s;}
+.tname{font-weight:700;font-size:12px;line-height:1.15;white-space:nowrap;overflow:hidden;text-shadow:0 0 6px rgba(0,0,0,.6);}
+.tname.sm{font-size:10.5px;padding-top:1px;}
+.prof{flex:1;min-height:0;width:100%;}
+.prof line{stroke:rgba(255,255,255,.15);stroke-dasharray:3 3;}
+.prof path{fill:none;stroke:var(--bc);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+.em{position:relative;height:3px;border-radius:2px;margin:0 1px;
+  background:linear-gradient(90deg,#ef5350,#ff9800,#fdd835,#66bb6a,#42a5f5,#ba68c8);}
+.em i{position:absolute;top:-2px;width:2px;height:7px;background:#fff;border-radius:1px;box-shadow:0 0 4px #fff;}
+.tf{display:flex;justify-content:space-between;align-items:center;gap:4px;}
+.chip{font-size:9px;font-weight:700;color:#0a0f1c;padding:1px 4px;border-radius:4px;line-height:1.4;white-space:nowrap;}
+.wv{font-size:9px;color:#9fb0c8;white-space:nowrap;}
+polyline.trace{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;animation:tr .55s ease forwards;}
+#info{max-width:720px;min-height:36px;font-size:12.5px;color:#c7d2e4;background:rgba(15,24,44,.85);
+  border:1px solid #26324e;border-radius:10px;padding:7px 14px;text-align:center;line-height:1.5;}
+#legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:11.5px;color:var(--sub);max-width:760px;}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+.lg em{font-style:normal;color:#6b7a94;margin-left:4px;}
+#toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-8px);background:rgba(28,43,80,.95);
+  border:1px solid #4a619a;color:#e8eef8;padding:8px 18px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:110;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.fscore{position:absolute;font-weight:800;color:#ffe082;text-shadow:0 2px 8px rgba(0,0,0,.6);font-size:15px;pointer-events:none;animation:rise .9s forwards;z-index:40;}
+#overlay{position:fixed;inset:0;background:rgba(4,7,14,.82);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:100;}
+#overlay.show{display:flex;}
+#overlay .card{background:#0f1930;border:1px solid #33456e;border-radius:18px;padding:30px 44px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);}
+#overlay h2{font-size:22px;margin-bottom:12px;}
+#overlay .res{color:var(--sub);font-size:14px;margin-bottom:18px;}
+#overlay .res b{color:#ffe082;}
+@keyframes deal{from{transform:scale(.2);opacity:0;}to{transform:scale(1);opacity:1;}}
+@keyframes pop{0%{transform:scale(1);}50%{transform:scale(.9);}100%{transform:scale(1);}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+@keyframes hintp{from{box-shadow:0 0 0 2px rgba(255,235,59,.9),0 0 12px rgba(255,235,59,.6);}to{box-shadow:0 0 0 2px rgba(255,235,59,.15),0 0 4px rgba(255,235,59,.2);}}
+@keyframes tr{0%{stroke-dashoffset:1;opacity:1;}70%{stroke-dashoffset:0;opacity:1;}100%{stroke-dashoffset:0;opacity:0;}}
+@keyframes rise{from{transform:translate(-50%,0);opacity:1;}to{transform:translate(-50%,-28px);opacity:0;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>天体谱线连连看</h1>
+  <div class="sub">颜色 = 波段 · 曲线 = 线型 · 相同谱线且路径转折不超过两次即可消除</div>
+</header>
+<div id="hud">
+  <span>时间<b id="hTime">00:00</b></span>
+  <span>剩余<b id="hLeft">32</b>对</span>
+  <span>得分<b id="hScore">0</b></span>
+  <span>连击<b id="hCombo">—</b></span>
+</div>
+<div id="btns">
+  <button id="btnHint">提示 ×3</button>
+  <button id="btnShuffle">洗牌 ×3</button>
+  <button id="btnSound">音效 开</button>
+  <button id="btnNew">重新开始</button>
+</div>
+<div id="boardBox"><svg id="pathLayer"></svg></div>
+<div id="info">点击方块查看谱线说明 · 颜色代表波段 · 曲线为典型线型</div>
+<div id="legend"></div>
+<div id="overlay"><div class="card">
+  <h2>全部消除！</h2>
+  <div class="res">用时 <b id="ovTime"></b> · 得分 <b id="ovScore"></b> · 最高连击 <b id="ovCombo"></b></div>
+  <button id="btnAgain">再来一局</button>
+</div></div>
+<div id="toast"></div>
+<script>
+'use strict';
+const COLS=8,ROWS=8,R=ROWS+2,C=COLS+2;
+const BANDS={
+ radio:{name:'射电',color:'#ef5350',range:'λ > 1 cm'},
+ mm:{name:'毫米',color:'#ff9800',range:'0.3–10 mm'},
+ ir:{name:'红外',color:'#fdd835',range:'0.75–300 μm'},
+ op:{name:'光学',color:'#66bb6a',range:'380–750 nm'},
+ uv:{name:'紫外',color:'#42a5f5',range:'10–380 nm'},
+ x:{name:'X射线',color:'#ba68c8',range:'0.01–10 nm'}
+};
+const LINES=[
+ {name:'HI 21cm',wave:'1420 MHz',band:'radio',pos:3,profile:[{s:1,c:0.32,w:0.16,a:0.85},{s:1,c:0.68,w:0.16,a:0.80}],desc:'中性氢 21cm 超精细结构跃迁，示踪星系原子气体；星系积分谱常呈双峰驼背形。'},
+ {name:'OH maser',wave:'1667 MHz',band:'radio',pos:5,profile:[{g:1,c:0.50,w:0.013,a:1.0},{g:1,c:0.64,w:0.011,a:0.5}],desc:'羟基分子 maser（受激发射），见于恒星形成区与晚型星包层，谱线极窄且强。'},
+ {name:'CO(1-0)',wave:'115 GHz',band:'mm',pos:17,profile:[{p:1,c:0.5,w:0.34,a:0.95}],desc:'CO 转动跃迁 J=1→0，冷分子气体最重要的示踪剂；典型轮廓呈抛物线形。'},
+ {name:'HCN(1-0)',wave:'88.6 GHz',band:'mm',pos:19,profile:[{g:1,c:0.5,w:0.09,a:0.9}],desc:'HCN J=1→0 转动跃迁，示踪高密度分子气体，轮廓窄而陡。'},
+ {name:'Paβ',wave:'1.28 μm',band:'ir',pos:40,profile:[{g:1,c:0.5,w:0.11,a:0.9}],desc:'氢帕邢系 β 线（n=5→3）复合发射，示踪近红外波段的电离气体与恒星形成。'},
+ {name:'H₂ S(1)',wave:'2.12 μm',band:'ir',pos:42,profile:[{g:1,c:0.45,w:0.05,a:0.95},{g:1,c:0.58,w:0.06,a:0.35}],desc:'分子氢 1-0 S(1) 振动跃迁，激波或紫外泵浦加热的分子气体的窄发射线。'},
+ {name:'Ca II 三重线',wave:'8542 Å',band:'ir',pos:50,profile:[{d:1,c:0.30,w:0.045,a:0.62},{d:1,c:0.50,w:0.045,a:0.88},{d:1,c:0.68,w:0.045,a:0.62}],desc:'Ca II 近红外三重线（8498/8542/8662 Å），晚型星与冷星际气体的强吸收特征。'},
+ {name:'Hα',wave:'6563 Å',band:'op',pos:58,profile:[{g:1,c:0.5,w:0.055,a:0.5},{g:1,c:0.5,w:0.16,a:0.68}],desc:'氢巴耳末 α 线，电离氢区最亮的光学发射线；活动星系核中呈宽+窄复合轮廓。'},
+ {name:'Hβ',wave:'4861 Å',band:'op',pos:61,profile:[{g:1,c:0.5,w:0.10,a:0.85}],desc:'氢巴耳末 β 线，HII 区与行星状星云的典型复合发射线。'},
+ {name:'[O III]',wave:'5007 Å',band:'op',pos:60,profile:[{g:1,c:0.38,w:0.035,a:0.30},{g:1,c:0.62,w:0.035,a:0.90}],desc:'O⁺⁺ 禁线双峰（4959/5007，强度约 1:3），高电离窄线区气体的示踪。'},
+ {name:'Na D',wave:'5890 Å',band:'op',pos:59,profile:[{d:1,c:0.42,w:0.048,a:0.72},{d:1,c:0.58,w:0.048,a:0.72}],desc:'钠 D 双线（5890/5896 Å），星际冷气体与晚型星大气的吸收特征。'},
+ {name:'Ca H&K',wave:'3934 Å',band:'op',pos:63,profile:[{d:1,c:0.40,w:0.05,a:0.90},{d:1,c:0.58,w:0.05,a:0.75}],desc:'Ca II H&K 共振线（3934/3969 Å），恒星光谱中最深的吸收双谷。'},
+ {name:'Lyα',wave:'1216 Å',band:'uv',pos:74,profile:[{l:1,c:0.5,w:0.17,a:1.05}],desc:'氢莱曼 α 线（n=2→1），紫外最强谱线；图中为阻尼氢吸收系统（DLA）的宽阻尼翼。'},
+ {name:'C IV',wave:'1549 Å',band:'uv',pos:72,profile:[{d:1,c:0.40,w:0.07,a:0.72},{g:1,c:0.57,w:0.075,a:0.80}],desc:'三重电离碳共振线，AGN 与大质量恒星风的标志，典型 P Cygni 轮廓（发射+蓝移吸收）。'},
+ {name:'Mg II',wave:'2798 Å',band:'uv',pos:70,profile:[{d:1,c:0.42,w:0.04,a:0.62},{d:1,c:0.58,w:0.04,a:0.62}],desc:'Mg II 共振双线（2796/2803 Å），类星体与星系紫外光谱中常见的窄吸收双谷。'},
+ {name:'Fe Kα',wave:'6.4 keV',band:'x',pos:95,profile:[{k:1,a:0.30,e:2.2,b:0.10},{g:1,c:0.68,w:0.016,a:0.82}],desc:'冷物质 X 射线荧光线，黑洞/中子星吸积盘内区反射的标志，叠加在幂律连续谱上。'}
+];
+let grid=null,tiles=[],sel=null,S=78;
+let score=0,combo=0,maxCombo=0,time=0,pairsLeft=0,hints=3,shufflesLeft=3,lastMatch=0,timerId=null,soundOn=true,audioCtx=null;
+let boardBox,pathLayer,info,legend,overlay,toastEl,hTime,hLeft,hScore,hCombo,btnHint,btnShuffle,btnSound,btnNew,btnAgain,ovTime,ovScore,ovCombo;
+
+function shuffleArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function hexA(hex,a){return hex+Math.round(a*255).toString(16).padStart(2,'0');}
+function fmt(t){const m=Math.floor(t/60),s=t%60;return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;}
+function emptyGrid(){const g=[];for(let r=0;r<R;r++){g.push([]);for(let c=0;c<C;c++)g[r].push(null);}return g;}
+
+function profilePath(comps){
+ const N=120,x0=3,x1=61,yb=31,K=24;let d='';
+ for(let i=0;i<=N;i++){
+  const u=i/N;let f=0;
+  for(const m of comps){
+   if(m.g)f+=m.a*Math.exp(-((u-m.c)*(u-m.c))/(2*m.w*m.w));
+   else if(m.s)f+=m.a*Math.exp(-Math.pow((u-m.c)/m.w,4));
+   else if(m.d)f-=m.a*Math.exp(-((u-m.c)*(u-m.c))/(2*m.w*m.w));
+   else if(m.l)f-=m.a/(1+Math.pow((u-m.c)/m.w,2));
+   else if(m.p){const t=(u-m.c)/m.w;if(Math.abs(t)<1)f+=m.a*(1-t*t);}
+   else if(m.k)f+=m.b+m.a*Math.exp(-m.e*u);
+  }
+  f=Math.max(-1.25,Math.min(1.2,f));
+  const Y=Math.max(3.5,Math.min(37.5,yb-f*K));
+  d+=(i?'L':'M')+(x0+u*(x1-x0)).toFixed(1)+' '+Y.toFixed(1);
+ }
+ return d;
+}
+
+function segClear(p,q){
+ if(p[0]===q[0]){const lo=Math.min(p[1],q[1]),hi=Math.max(p[1],q[1]);for(let c=lo+1;c<hi;c++)if(grid[p[0]][c]!==null)return false;return true;}
+ if(p[1]===q[1]){const lo=Math.min(p[0],q[0]),hi=Math.max(p[0],q[0]);for(let r=lo+1;r<hi;r++)if(grid[r][p[1]]!==null)return false;return true;}
+ return false;
+}
+function free(p,a,b){if(p[0]===a[0]&&p[1]===a[1])return true;if(p[0]===b[0]&&p[1]===b[1])return true;return grid[p[0]][p[1]]===null;}
+function findPath(a,b){
+ if(segClear(a,b))return [a,b];
+ const c1=[a[0],b[1]],c2=[b[0],a[1]];
+ if(free(c1,a,b)&&segClear(a,c1)&&segClear(c1,b))return [a,c1,b];
+ if(free(c2,a,b)&&segClear(a,c2)&&segClear(c2,b))return [a,c2,b];
+ for(let r=0;r<R;r++){const p1=[r,a[1]],p2=[r,b[1]];
+  if(free(p1,a,b)&&free(p2,a,b)&&segClear(a,p1)&&segClear(p1,p2)&&segClear(p2,b))return [a,p1,p2,b];}
+ for(let c=0;c<C;c++){const p1=[a[0],c],p2=[b[0],c];
+  if(free(p1,a,b)&&free(p2,a,b)&&segClear(a,p1)&&segClear(p1,p2)&&segClear(p2,b))return [a,p1,p2,b];}
+ return null;
+}
+function gridPair(){
+ const pos={};
+ for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++){const v=grid[r][c];if(v!==null){if(!pos[v])pos[v]=[];pos[v].push([r,c]);}}
+ for(const k in pos){const arr=pos[k];
+  for(let i=0;i<arr.length;i++)for(let j=i+1;j<arr.length;j++)if(findPath(arr[i],arr[j]))return [arr[i],arr[j]];}
+ return null;
+}
+function hintPair(){
+ const by={};
+ for(const t of tiles){if(!t.alive)continue;if(!by[t.line])by[t.line]=[];by[t.line].push(t);}
+ for(const k in by){const arr=by[k];
+  for(let i=0;i<arr.length;i++)for(let j=i+1;j<arr.length;j++)if(findPath([arr[i].r,arr[i].c],[arr[j].r,arr[j].c]))return [arr[i],arr[j]];}
+ return null;
+}
+
+function placeTile(t){
+ t.el.style.left=((t.c-1)*S+2)+'px';t.el.style.top=((t.r-1)*S+2)+'px';
+ t.el.style.width=(S-4)+'px';t.el.style.height=(S-4)+'px';
+}
+function renderTile(t){
+ const L=LINES[t.line],b=BANDS[L.band];
+ t.el.style.setProperty('--bc',b.color);
+ t.el.style.setProperty('--bt',hexA(b.color,0.16));
+ t.el.innerHTML='<div class="tname'+(L.name.length>7?' sm':'')+'">'+L.name+'</div>'
+  +'<svg class="prof" viewBox="0 0 64 40" preserveAspectRatio="none"><line x1="3" y1="31" x2="61" y2="31"/><path d="'+profilePath(L.profile)+'"/></svg>'
+  +'<div class="em"><i style="left:'+L.pos+'%"></i></div>'
+  +'<div class="tf"><span class="chip" style="background:'+b.color+'">'+b.name+'</span><span class="wv">'+L.wave+'</span></div>';
+ t.el.title=L.name+'（'+b.name+'）：'+L.desc;
+ placeTile(t);
+}
+function relayout(){
+ const avail=Math.min(window.innerWidth-20,720);
+ S=Math.max(40,Math.min(84,Math.floor(avail/COLS)));
+ boardBox.style.width=(COLS*S)+'px';
+ boardBox.style.height=(ROWS*S)+'px';
+ const w=(COLS+2)*S,h=(ROWS+2)*S;
+ pathLayer.setAttribute('width',w);pathLayer.setAttribute('height',h);
+ pathLayer.setAttribute('viewBox','0 0 '+w+' '+h);
+ pathLayer.style.left=(-S)+'px';pathLayer.style.top=(-S)+'px';
+ for(const t of tiles)placeTile(t);
+}
+function buildBoard(){
+ const olds=Array.from(boardBox.querySelectorAll('.tile'));
+ for(const el of olds)el.remove();
+ pathLayer.innerHTML='';
+ const vals=[];
+ for(let i=0;i<LINES.length;i++)for(let k=0;k<4;k++)vals.push(i);
+ grid=emptyGrid();
+ let tries=0;
+ do{shuffleArr(vals);let idx=0;for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++)grid[r][c]=vals[idx++];tries++;}
+ while(!gridPair()&&tries<500);
+ tiles=[];sel=null;
+ relayout();
+ let idx=0;
+ for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++){
+  const t={line:grid[r][c],r:r,c:c,alive:true,el:document.createElement('div')};
+  t.el.className='tile pre';
+  t.el.style.animationDelay=(idx*7)+'ms';
+  t.el.addEventListener('animationend',e=>{if(e.animationName==='deal')t.el.classList.remove('pre');if(e.animationName==='pop')t.el.classList.remove('pop');});
+  t.el.addEventListener('click',()=>onTileClick(t));
+  renderTile(t);
+  boardBox.appendChild(t.el);
+  tiles.push(t);idx++;
+ }
+ pairsLeft=tiles.length/2;
+}
+
+function onTileClick(t){
+ if(!t.alive)return;
+ showInfo(t);
+ if(sel===t){t.el.classList.remove('sel');sel=null;return;}
+ if(sel&&sel.line===t.line){
+  const path=findPath([sel.r,sel.c],[t.r,t.c]);
+  if(path){const A=sel;sel=null;eliminate(A,t,path);return;}
+  t.el.classList.add('shake');setTimeout(()=>t.el.classList.remove('shake'),320);
+  beep(150,0.09,'square',0.03);
+ }
+ if(sel)sel.el.classList.remove('sel');
+ sel=t;t.el.classList.add('sel');
+ beep(440,0.03,'sine',0.02);
+}
+function drawPath(pts,color){
+ const P=pts.map(p=>((p[1]-0.5)*S+S)+','+((p[0]-0.5)*S+S)).join(' ');
+ const pl=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+ pl.setAttribute('points',P);pl.setAttribute('pathLength','1');pl.setAttribute('class','trace');
+ pl.style.stroke=color;
+ pathLayer.appendChild(pl);
+ setTimeout(()=>pl.remove(),650);
+}
+function floatScore(a,b,pts,cb){
+ const x=((a.c-1)+(b.c-1))/2*S+S/2,y=((a.r-1)+(b.r-1))/2*S+S/2;
+ const d=document.createElement('div');
+ d.className='fscore';d.textContent='+'+pts+(cb>1?' ×'+cb:'');
+ d.style.left=x+'px';d.style.top=(y-10)+'px';
+ boardBox.appendChild(d);
+ setTimeout(()=>d.remove(),950);
+}
+function eliminate(a,b,path){
+ grid[a.r][a.c]=null;grid[b.r][b.c]=null;
+ a.alive=false;b.alive=false;
+ a.el.classList.remove('sel');b.el.classList.remove('sel');
+ a.el.classList.add('dead');b.el.classList.add('dead');
+ drawPath(path,BANDS[LINES[a.line].band].color);
+ const now=Date.now();
+ combo=(now-lastMatch<6000)?combo+1:1;
+ lastMatch=now;maxCombo=Math.max(maxCombo,combo);
+ const pts=10+(combo-1)*5;score+=pts;
+ floatScore(a,b,pts,combo);
+ pairsLeft--;updateHUD();
+ beep(660,0.06);setTimeout(()=>beep(880,0.08),60);
+ if(pairsLeft===0){win();return;}
+ if(!gridPair()){toast('没有可消除的组合，自动洗牌');setTimeout(()=>doShuffle(true),550);}
+}
+function doShuffle(auto){
+ const alive=tiles.filter(t=>t.alive);
+ if(alive.length===0)return;
+ if(sel){sel.el.classList.remove('sel');sel=null;}
+ let guard=0;
+ do{
+  const vs=shuffleArr(alive.map(t=>t.line));
+  alive.forEach((t,i)=>{t.line=vs[i];grid[t.r][t.c]=vs[i];renderTile(t);});
+  guard++;
+ }while(!gridPair()&&guard<400);
+ if(!auto){shufflesLeft--;updateHUD();toast('已洗牌');}
+ alive.forEach(t=>{t.el.classList.remove('pop');void t.el.offsetWidth;t.el.classList.add('pop');});
+}
+function doHint(){
+ if(hints<=0){toast('提示次数已用完');return;}
+ const mv=hintPair();
+ if(!mv){toast('没有可消除的组合，先洗牌吧');return;}
+ hints--;updateHUD();
+ mv[0].el.classList.add('hint');mv[1].el.classList.add('hint');
+ setTimeout(()=>{mv[0].el.classList.remove('hint');mv[1].el.classList.remove('hint');},2000);
+}
+function updateHUD(){
+ hLeft.textContent=pairsLeft;
+ hScore.textContent=score;
+ hCombo.textContent=combo>1?'×'+combo:'—';
+ btnHint.textContent='提示 ×'+hints;
+ btnShuffle.textContent='洗牌 ×'+shufflesLeft;
+}
+function updateTime(){hTime.textContent=fmt(time);}
+function showInfo(t){
+ const L=LINES[t.line],b=BANDS[L.band];
+ info.innerHTML='<b style="color:'+b.color+'">'+L.name+' · '+L.wave+' · '+b.name+'波段</b><span> — '+L.desc+'</span>';
+}
+function buildLegend(){
+ let h='';
+ for(const k in BANDS){const b=BANDS[k];h+='<span class="lg"><i style="background:'+b.color+'"></i>'+b.name+'<em>'+b.range+'</em></span>';}
+ h+='<span class="lg" style="color:#6b7a94">方块底部彩条上的白色刻度 = 该谱线在电磁波谱上的位置</span>';
+ legend.innerHTML=h;
+}
+let toastTimer=null;
+function toast(msg){
+ toastEl.textContent=msg;toastEl.classList.add('show');
+ clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),1700);
+}
+function beep(freq,dur,type,gain,delay){
+ if(!soundOn)return;
+ try{
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  const t0=audioCtx.currentTime+(delay||0);
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(gain||0.04,t0);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+(dur||0.08));
+  o.connect(g);g.connect(audioCtx.destination);
+  o.start(t0);o.stop(t0+(dur||0.08)+0.03);
+ }catch(e){}
+}
+function startTimer(){stopTimer();timerId=setInterval(()=>{time++;updateTime();},1000);}
+function stopTimer(){if(timerId){clearInterval(timerId);timerId=null;}}
+function win(){
+ stopTimer();
+ ovTime.textContent=fmt(time);ovScore.textContent=score;ovCombo.textContent='×'+maxCombo;
+ overlay.classList.add('show');
+ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.14,'triangle',0.05),i*130));
+}
+function newGame(){
+ overlay.classList.remove('show');
+ stopTimer();
+ score=0;combo=0;maxCombo=0;time=0;hints=3;shufflesLeft=3;lastMatch=0;
+ info.textContent='点击方块查看谱线说明 · 颜色代表波段 · 曲线为典型线型';
+ updateTime();
+ buildBoard();
+ updateHUD();
+ startTimer();
+ toast('开始！找出相同谱线，两折以内连通即可消除');
+}
+function init(){
+ boardBox=document.getElementById('boardBox');
+ pathLayer=document.getElementById('pathLayer');
+ info=document.getElementById('info');
+ legend=document.getElementById('legend');
+ overlay=document.getElementById('overlay');
+ toastEl=document.getElementById('toast');
+ hTime=document.getElementById('hTime');
+ hLeft=document.getElementById('hLeft');
+ hScore=document.getElementById('hScore');
+ hCombo=document.getElementById('hCombo');
+ btnHint=document.getElementById('btnHint');
+ btnShuffle=document.getElementById('btnShuffle');
+ btnSound=document.getElementById('btnSound');
+ btnNew=document.getElementById('btnNew');
+ btnAgain=document.getElementById('btnAgain');
+ ovTime=document.getElementById('ovTime');
+ ovScore=document.getElementById('ovScore');
+ ovCombo=document.getElementById('ovCombo');
+ buildLegend();
+ btnHint.addEventListener('click',doHint);
+ btnShuffle.addEventListener('click',()=>{if(shufflesLeft<=0){toast('洗牌次数已用完');return;}doShuffle(false);});
+ btnSound.addEventListener('click',()=>{soundOn=!soundOn;btnSound.textContent='音效 '+(soundOn?'开':'关');});
+ btnNew.addEventListener('click',newGame);
+ btnAgain.addEventListener('click',newGame);
+ window.addEventListener('resize',relayout);
+ newGame();
+}
+if(typeof document!=='undefined'){init();}
+else{
+ grid=emptyGrid();
+ grid[1][1]=0;grid[1][5]=0;
+ console.assert(JSON.stringify(findPath([1,1],[1,5]))==='[[1,1],[1,5]]','T1 straight');
+ grid[3][3]=0;
+ console.assert(findPath([1,1],[3,3])&&findPath([1,1],[3,3]).length===3,'T2 one turn');
+ grid[1][3]=1;grid[3][1]=1;
+ console.assert(findPath([1,1],[3,3])&&findPath([1,1],[3,3]).length===4,'T3 two turns');
+ grid=emptyGrid();
+ grid[1][1]=0;grid[1][8]=0;grid[1][4]=1;
+ const t4=findPath([1,1],[1,8]);
+ console.assert(t4&&t4.length===4&&t4.some(p=>p[0]===0),'T4 border route');
+ grid=emptyGrid();
+ grid[1][1]=0;grid[1][3]=0;
+ for(let r=0;r<=2;r++)for(let c=0;c<=4;c++){if((r===1&&c===1)||(r===1&&c===3))continue;grid[r][c]=1;}
+ console.assert(findPath([1,1],[1,3])===null,'T5 no path');
+ console.assert(LINES.length===16,'T6 catalog size');
+ console.assert(LINES.length*4===COLS*ROWS,'T7 board fill');
+ for(const L of LINES){
+  const d=profilePath(L.profile);
+  console.assert(d.charAt(0)==='M'&&d.indexOf('L')>0,'T8 profile '+L.name);
+  console.assert(L.pos>=0&&L.pos<=100,'T9 pos '+L.name);
+ }
+ const vals=[];
+ for(let i=0;i<LINES.length;i++)for(let k=0;k<4;k++)vals.push(i);
+ grid=emptyGrid();
+ const put=()=>{const v=vals.slice();shuffleArr(v);let i=0;for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++)grid[r][c]=v[i++];};
+ put();
+ let removed=0,reshuffles=0,guard=0;
+ while(removed<64&&guard<20000){
+  guard++;
+  const mv=gridPair();
+  if(mv){grid[mv[0][0]][mv[0][1]]=null;grid[mv[1][0]][mv[1][1]]=null;removed+=2;}
+  else{put();reshuffles++;}
+ }
+ console.assert(removed===64,'T10 sim completion');
+ console.log('SELF-TEST OK · sim removed='+removed+' reshuffles='+reshuffles+' iters='+guard);
+}
+</script>
+</body>
+</html>
