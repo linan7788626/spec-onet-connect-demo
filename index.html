@@ -34,9 +34,26 @@ h1{font-size:24px;letter-spacing:2px;font-weight:800;
 .sub{font-size:12.5px;color:var(--sub);margin-top:4px;}
 #hud{display:flex;gap:16px;font-size:13px;color:var(--sub);flex-wrap:wrap;justify-content:center;}
 #hud b{color:#fff;font-variant-numeric:tabular-nums;margin-left:4px;}
-#btns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+#btns,#mBtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
 button{background:#141f3a;border:1px solid #33456e;color:#dbe5f5;border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;font-family:inherit;}
 button:hover{background:#1c2b50;border-color:#4a619a;}
+button.big{padding:9px 20px;font-size:14.5px;}
+button.big:disabled{opacity:.45;cursor:default;}
+button.primary{background:#22406f;border-color:#5b8ad6;color:#eaf2ff;}
+.screen{display:none;flex-direction:column;align-items:center;gap:12px;width:100%;}
+.screen.on{display:flex;}
+#mProg{font-size:14px;color:var(--sub);background:rgba(15,24,44,.85);border:1px solid #26324e;border-radius:12px;padding:9px 18px;}
+#mProg b{color:#ffe082;font-variant-numeric:tabular-nums;}
+.chapters{display:flex;flex-direction:column;gap:10px;width:min(620px,94vw);}
+.chp{background:rgba(15,24,44,.72);border:1px solid #26324e;border-radius:12px;padding:10px 12px;}
+.chname{font-size:12.5px;color:var(--sub);margin-bottom:8px;}
+.lvls{display:flex;gap:8px;}
+.lvl{flex:1;padding:8px 4px;border-radius:10px;text-align:center;font-size:12px;line-height:1.35;font-weight:700;}
+.lvl small{display:block;font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;}
+.lvl.cur{border-color:#ffe082;box-shadow:0 0 10px rgba(255,224,130,.35);}
+.lvl.done{border-color:#3f6e52;}
+.lvl.lock{opacity:.42;}
+.st{color:#ffd54f;}
 #boardBox{position:relative;touch-action:manipulation;}
 #pathLayer{position:absolute;pointer-events:none;overflow:visible;z-index:30;}
 .tile{position:absolute;display:flex;flex-direction:column;gap:2px;padding:4px 5px 3px;
@@ -61,22 +78,58 @@ button:hover{background:#1c2b50;border-color:#4a619a;}
 .tf{display:flex;justify-content:space-between;align-items:center;gap:4px;}
 .chip{font-size:9px;font-weight:700;color:#0a0f1c;padding:1px 4px;border-radius:4px;line-height:1.4;white-space:nowrap;}
 .wv{font-size:9px;color:#9fb0c8;white-space:nowrap;}
+.nonames .tname,.nonames .wv{visibility:hidden;}
 polyline.trace{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;animation:tr .55s ease forwards;}
-#info{max-width:720px;min-height:36px;font-size:12.5px;color:#c7d2e4;background:rgba(15,24,44,.85);
-  border:1px solid #26324e;border-radius:10px;padding:7px 14px;text-align:center;line-height:1.5;}
-#legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:11.5px;color:var(--sub);max-width:760px;}
+#gameMain{display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap;}
+.spSide{width:262px;background:rgba(15,24,44,.85);border:1px solid #26324e;border-radius:12px;padding:4px 14px;font-size:12.5px;line-height:1.65;color:#c7d2e4;max-height:700px;overflow:auto;}
+.spSecTitle{font-size:10.5px;color:var(--sub);letter-spacing:1.5px;margin-bottom:7px;}
+.spBand{margin-bottom:5px;}
+.spBadge{display:inline-block;font-size:13.5px;font-weight:800;padding:2px 10px;border-radius:999px;line-height:1.5;}
+.spPool{display:flex;flex-wrap:wrap;gap:5px;}
+.spPool .spBadge{font-size:11px;padding:2px 8px;font-weight:700;}
+.spName{font-weight:800;font-size:16px;margin-bottom:3px;}
+.spName .wv{font-size:11px;font-weight:400;margin-left:8px;}
+.spDesc{font-size:11.5px;color:#9fb0c8;margin:1px 0 3px;}
+.spMod{margin-top:8px;padding-top:7px;border-top:1px dashed #2a3a5e;}
+.spMod i{font-style:normal;font-weight:700;margin-right:8px;}
+#legend{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:center;font-size:11.5px;color:var(--sub);max-width:900px;}
 .lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
 .lg em{font-style:normal;color:#6b7a94;margin-left:4px;}
 #toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-8px);background:rgba(28,43,80,.95);
   border:1px solid #4a619a;color:#e8eef8;padding:8px 18px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:110;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .fscore{position:absolute;font-weight:800;color:#ffe082;text-shadow:0 2px 8px rgba(0,0,0,.6);font-size:15px;pointer-events:none;animation:rise .9s forwards;z-index:40;}
-#overlay{position:fixed;inset:0;background:rgba(4,7,14,.82);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:100;}
-#overlay.show{display:flex;}
-#overlay .card{background:#0f1930;border:1px solid #33456e;border-radius:18px;padding:30px 44px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);}
-#overlay h2{font-size:22px;margin-bottom:12px;}
-#overlay .res{color:var(--sub);font-size:14px;margin-bottom:18px;}
-#overlay .res b{color:#ffe082;}
+.ovl{position:fixed;inset:0;background:rgba(4,7,14,.82);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;}
+.ovl.show{display:flex;}
+.ovl .card{background:#0f1930;border:1px solid #33456e;border-radius:18px;padding:26px 30px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:88vh;overflow:auto;max-width:94vw;}
+.ovl h2{font-size:21px;margin-bottom:10px;}
+.ovl .res{color:var(--sub);font-size:13.5px;margin-bottom:14px;line-height:1.7;}
+.ovl .res b{color:#ffe082;}
+.qcard{width:min(500px,94vw);text-align:left;}
+.qhead{display:flex;justify-content:space-between;font-size:12.5px;color:var(--sub);margin-bottom:10px;}
+.qtext{font-size:15.5px;line-height:1.65;margin:4px 0 14px;}
+.qopt{display:block;width:100%;text-align:left;margin-bottom:9px;padding:10px 13px;border-radius:10px;font-size:14px;line-height:1.4;}
+.qopt.ok{background:#173a22;border-color:#66bb6a;color:#c8f0ce;}
+.qopt.bad{background:#3a1717;border-color:#ef5350;color:#f2c6c6;}
+.qopt:disabled{cursor:default;opacity:1;}
+.qwhy{min-height:38px;font-size:12.5px;color:#9fb0c8;line-height:1.55;margin:4px 0 12px;}
+#qNext{display:none;width:100%;}
+.apanel{width:min(700px,94vw);}
+.acards{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px;margin-bottom:14px;}
+.acard{border:2px solid var(--bc);border-radius:10px;padding:7px 7px 6px;background:linear-gradient(165deg,var(--bt),#0c1220 70%);cursor:pointer;text-align:center;transition:filter .15s;}
+.acard:hover{filter:brightness(1.2);}
+.acard.lock{filter:grayscale(.85) brightness(.5);cursor:default;}
+.acard.wait{filter:grayscale(.55) brightness(.72);}
+.acard.lock:hover,.acard.wait:hover{filter:grayscale(.85) brightness(.5);}
+.acard .aname{font-weight:700;font-size:12px;margin-bottom:4px;white-space:nowrap;overflow:hidden;}
+.acard .prof{height:26px;flex:none;}
+.acard .afoot{font-size:10.5px;color:#9fb0c8;margin-top:4px;}
+.bigcard{border:2px solid var(--bc);background:linear-gradient(165deg,var(--bt),#0c1220 70%);border-radius:14px;padding:12px 14px 10px;width:min(340px,84vw);text-align:left;margin:0 auto 14px;}
+.bigcard .cname{font-weight:800;font-size:17px;margin:2px 0 6px;}
+.bigcard .prof{height:72px;flex:none;}
+.bigcard .cb{font-size:12.5px;line-height:1.7;color:#c7d2e4;margin-top:8px;}
+.bigcard .cb p{margin:2px 0;}
+.bigcard .cb i{font-style:normal;font-weight:700;margin-right:6px;color:var(--bc);}
 @keyframes deal{from{transform:scale(.2);opacity:0;}to{transform:scale(1);opacity:1;}}
 @keyframes pop{0%{transform:scale(1);}50%{transform:scale(.9);}100%{transform:scale(1);}}
 @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
@@ -86,68 +139,279 @@ polyline.trace{fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:r
 </style>
 </head>
 <body>
-<header>
-  <h1>天体谱线连连看</h1>
-  <div class="sub">颜色 = 波段 · 曲线 = 线型 · 相同谱线且路径转折不超过两次即可消除</div>
-</header>
-<div id="hud">
-  <span>时间<b id="hTime">00:00</b></span>
-  <span>剩余<b id="hLeft">32</b>对</span>
-  <span>得分<b id="hScore">0</b></span>
-  <span>连击<b id="hCombo">—</b></span>
+<div id="menu" class="screen on">
+  <header>
+    <h1>天体谱线连连看</h1>
+    <div class="sub">闯关消除 → 收集谱线卡 → 答对问答 · 集齐 16 张解锁分数挑战</div>
+  </header>
+  <div id="mProg"></div>
+  <div id="mBtns">
+    <button id="btnPlay" class="big primary"></button>
+    <button id="btnAtlas" class="big">谱线图集</button>
+    <button id="btnChallenge" class="big"></button>
+    <button id="btnSoundM" class="big">音效 开</button>
+    <button id="btnReset" class="big">重置进度</button>
+  </div>
+  <div id="mGrid" class="chapters"></div>
 </div>
-<div id="btns">
-  <button id="btnHint">提示 ×3</button>
-  <button id="btnShuffle">洗牌 ×3</button>
-  <button id="btnSound">音效 开</button>
-  <button id="btnNew">重新开始</button>
+
+<div id="game" class="screen">
+  <header>
+    <h1 id="gTitle" style="font-size:19px"></h1>
+    <div class="sub" id="gSub"></div>
+  </header>
+  <div id="hud">
+    <span>时间<b id="hTime">00:00</b></span>
+    <span>剩余<b id="hLeft">0</b>对</span>
+    <span>得分<b id="hScore">0</b></span>
+    <span>连击<b id="hCombo">—</b></span>
+  </div>
+  <div id="btns">
+    <button id="btnHint">提示 ×3</button>
+    <button id="btnShuffle">洗牌 ×3</button>
+    <button id="btnSound">音效 开</button>
+    <button id="btnNames">名称 开</button>
+    <button id="btnRestart">重开本局</button>
+    <button id="btnBack">返回菜单</button>
+  </div>
+  <div id="gameMain">
+    <aside id="spLeft" class="spSide"></aside>
+    <div id="boardBox"><svg id="pathLayer"></svg></div>
+    <aside id="spTarget" class="spSide"></aside>
+  </div>
+  <div id="legend"></div>
 </div>
-<div id="boardBox"><svg id="pathLayer"></svg></div>
-<div id="info">点击方块查看谱线说明 · 颜色代表波段 · 曲线为典型线型</div>
-<div id="legend"></div>
-<div id="overlay"><div class="card">
-  <h2>全部消除！</h2>
-  <div class="res">用时 <b id="ovTime"></b> · 得分 <b id="ovScore"></b> · 最高连击 <b id="ovCombo"></b></div>
-  <button id="btnAgain">再来一局</button>
+
+<div id="cardOvl" class="ovl"><div class="card">
+  <h2>获得新谱线卡！</h2>
+  <div class="res">完成问答即可收入图鉴</div>
+  <div id="crCard"></div>
+  <button id="crGo" class="big primary">开始问答</button>
 </div></div>
+
+<div id="quizOvl" class="ovl"><div class="card qcard">
+  <div class="qhead"><span id="qStep"></span><span class="st" id="qScore"></span></div>
+  <div id="qText" class="qtext"></div>
+  <div id="qOpts"></div>
+  <div id="qWhy" class="qwhy"></div>
+  <button id="qNext" class="big primary">下一题</button>
+</div></div>
+
+<div id="atlasOvl" class="ovl"><div class="card apanel">
+  <h2>谱线图集</h2>
+  <div class="res" id="atProg"></div>
+  <div id="atGrid" class="acards"></div>
+  <button id="atClose" class="big">关闭</button>
+</div></div>
+
+<div id="detailOvl" class="ovl"><div class="card">
+  <div id="dtCard"></div>
+  <div id="dtBtns" style="display:flex;gap:10px;justify-content:center"></div>
+</div></div>
+
+<div id="resultOvl" class="ovl"><div class="card">
+  <h2 id="rTitle"></h2>
+  <div class="res" id="rBody"></div>
+  <div id="rBtns" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"></div>
+</div></div>
+
 <div id="toast"></div>
 <script>
 'use strict';
-const COLS=8,ROWS=8,R=ROWS+2,C=COLS+2;
+let ROWS=8,COLS=8,R=10,C=10;
+const KEY='tlx_lianliankan_v1';
 const BANDS={
- radio:{name:'射电',color:'#ef5350',range:'λ > 1 cm'},
+ radio:{name:'射电',color:'#c62828',ink:'#fff',range:'λ > 1 cm'},
  mm:{name:'毫米',color:'#ff9800',range:'0.3–10 mm'},
- ir:{name:'红外',color:'#fdd835',range:'0.75–300 μm'},
+ ir:{name:'红外',color:'#f4511e',range:'0.75–300 μm'},
  op:{name:'光学',color:'#66bb6a',range:'380–750 nm'},
- uv:{name:'紫外',color:'#42a5f5',range:'10–380 nm'},
- x:{name:'X射线',color:'#ba68c8',range:'0.01–10 nm'}
+ uv:{name:'紫外',color:'#ab47bc',range:'10–380 nm'},
+ x:{name:'X射线',color:'#ce93d8',range:'0.01–10 nm'}
 };
+const BANDFREQ={radio:175,mm:262,ir:392,op:523,uv:740,x:1047};
 const LINES=[
- {name:'HI 21cm',wave:'1420 MHz',band:'radio',pos:3,profile:[{s:1,c:0.32,w:0.16,a:0.85},{s:1,c:0.68,w:0.16,a:0.80}],desc:'中性氢 21cm 超精细结构跃迁，示踪星系原子气体；星系积分谱常呈双峰驼背形。'},
- {name:'OH maser',wave:'1667 MHz',band:'radio',pos:5,profile:[{g:1,c:0.50,w:0.013,a:1.0},{g:1,c:0.64,w:0.011,a:0.5}],desc:'羟基分子 maser（受激发射），见于恒星形成区与晚型星包层，谱线极窄且强。'},
- {name:'CO(1-0)',wave:'115 GHz',band:'mm',pos:17,profile:[{p:1,c:0.5,w:0.34,a:0.95}],desc:'CO 转动跃迁 J=1→0，冷分子气体最重要的示踪剂；典型轮廓呈抛物线形。'},
- {name:'HCN(1-0)',wave:'88.6 GHz',band:'mm',pos:19,profile:[{g:1,c:0.5,w:0.09,a:0.9}],desc:'HCN J=1→0 转动跃迁，示踪高密度分子气体，轮廓窄而陡。'},
- {name:'Paβ',wave:'1.28 μm',band:'ir',pos:40,profile:[{g:1,c:0.5,w:0.11,a:0.9}],desc:'氢帕邢系 β 线（n=5→3）复合发射，示踪近红外波段的电离气体与恒星形成。'},
- {name:'H₂ S(1)',wave:'2.12 μm',band:'ir',pos:42,profile:[{g:1,c:0.45,w:0.05,a:0.95},{g:1,c:0.58,w:0.06,a:0.35}],desc:'分子氢 1-0 S(1) 振动跃迁，激波或紫外泵浦加热的分子气体的窄发射线。'},
- {name:'Ca II 三重线',wave:'8542 Å',band:'ir',pos:50,profile:[{d:1,c:0.30,w:0.045,a:0.62},{d:1,c:0.50,w:0.045,a:0.88},{d:1,c:0.68,w:0.045,a:0.62}],desc:'Ca II 近红外三重线（8498/8542/8662 Å），晚型星与冷星际气体的强吸收特征。'},
- {name:'Hα',wave:'6563 Å',band:'op',pos:58,profile:[{g:1,c:0.5,w:0.055,a:0.5},{g:1,c:0.5,w:0.16,a:0.68}],desc:'氢巴耳末 α 线，电离氢区最亮的光学发射线；活动星系核中呈宽+窄复合轮廓。'},
- {name:'Hβ',wave:'4861 Å',band:'op',pos:61,profile:[{g:1,c:0.5,w:0.10,a:0.85}],desc:'氢巴耳末 β 线，HII 区与行星状星云的典型复合发射线。'},
- {name:'[O III]',wave:'5007 Å',band:'op',pos:60,profile:[{g:1,c:0.38,w:0.035,a:0.30},{g:1,c:0.62,w:0.035,a:0.90}],desc:'O⁺⁺ 禁线双峰（4959/5007，强度约 1:3），高电离窄线区气体的示踪。'},
- {name:'Na D',wave:'5890 Å',band:'op',pos:59,profile:[{d:1,c:0.42,w:0.048,a:0.72},{d:1,c:0.58,w:0.048,a:0.72}],desc:'钠 D 双线（5890/5896 Å），星际冷气体与晚型星大气的吸收特征。'},
- {name:'Ca H&K',wave:'3934 Å',band:'op',pos:63,profile:[{d:1,c:0.40,w:0.05,a:0.90},{d:1,c:0.58,w:0.05,a:0.75}],desc:'Ca II H&K 共振线（3934/3969 Å），恒星光谱中最深的吸收双谷。'},
- {name:'Lyα',wave:'1216 Å',band:'uv',pos:74,profile:[{l:1,c:0.5,w:0.17,a:1.05}],desc:'氢莱曼 α 线（n=2→1），紫外最强谱线；图中为阻尼氢吸收系统（DLA）的宽阻尼翼。'},
- {name:'C IV',wave:'1549 Å',band:'uv',pos:72,profile:[{d:1,c:0.40,w:0.07,a:0.72},{g:1,c:0.57,w:0.075,a:0.80}],desc:'三重电离碳共振线，AGN 与大质量恒星风的标志，典型 P Cygni 轮廓（发射+蓝移吸收）。'},
- {name:'Mg II',wave:'2798 Å',band:'uv',pos:70,profile:[{d:1,c:0.42,w:0.04,a:0.62},{d:1,c:0.58,w:0.04,a:0.62}],desc:'Mg II 共振双线（2796/2803 Å），类星体与星系紫外光谱中常见的窄吸收双谷。'},
- {name:'Fe Kα',wave:'6.4 keV',band:'x',pos:95,profile:[{k:1,a:0.30,e:2.2,b:0.10},{g:1,c:0.68,w:0.016,a:0.82}],desc:'冷物质 X 射线荧光线，黑洞/中子星吸积盘内区反射的标志，叠加在幂律连续谱上。'}
+ {name:'HI 21cm',tc:'#ff8a80',wave:'1420 MHz',wl:'2.1×10⁵ μm（1420 MHz）',band:'radio',pos:3,profile:[{s:1,c:0.32,w:0.16,a:0.85},{s:1,c:0.68,w:0.16,a:0.80}],
+  desc:'中性氢 21cm 超精细结构跃迁，示踪星系原子气体；星系积分谱常呈双峰驼背形。',tip:'中性氢 / 暗物质',lw:'窄（FWHM ~1–10 km/s）；DLA 阻尼翼极宽',traces:'中性原子氢气体',apply:'旋转曲线→暗物质；气体质量；红移测距',fact:'来自基态超精细结构，是宇宙中信息量最大的谱线之一',
+  quiz:[
+   {q:'HI 21cm 线来自什么物理过程？',opts:['电子从 n=2 跳回 n=1','氢原子基态超精细结构（自旋翻转）','分子转动跃迁','轫致辐射'],ans:1,why:'质子与电子自旋平行/反平行的微小能差对应 1420 MHz。'},
+   {q:'用 21cm 测星系旋转曲线，发现外侧速度不下降，由此推论？',opts:['星系正在瓦解','存在暗物质晕','牛顿力学失效','望远镜系统误差'],ans:1,why:'平坦旋转曲线暗示大量不可见质量——暗物质的经典证据。'},
+   {q:'星系 HI 积分谱常呈双峰，原因是？',opts:['两条不同的谱线','星系盘两侧气体分别接近/远离我们','maser 干涉','仪器偏振效应'],ans:1,why:'旋转盘的红移侧与蓝移侧各自聚成一个峰。'},
+   {q:'星系 HI 积分谱宽度常达数百 km/s，主导致宽机制是？',opts:['热运动','湍流','星系盘整体转动','仪器分辨率'],ans:2,why:'中性云本身冷而窄，积分谱宽由盘的旋转主导。'}
+  ]},
+ {name:'OH maser',tc:'#82b1ff',wave:'1667 MHz',wl:'1.8×10⁵ μm（1667 MHz）',band:'radio',pos:5,profile:[{g:1,c:0.50,w:0.013,a:1.0},{g:1,c:0.64,w:0.011,a:0.5}],
+  desc:'羟基分子 maser（受激发射），见于恒星形成区与晚型星包层，谱线极窄且强。',tip:'受激发射',lw:'极窄（kHz 量级，受激发射增益变窄）',traces:'受激发射的羟基分子云团',apply:'maser 视差精测距离；megamaser 示踪星系并合',fact:'宇宙级"激光"，线宽可窄至 kHz 量级',
+  quiz:[
+   {q:'maser 谱线与普通热谱线的最大区别？',opts:['更宽更弱','受激发射、极窄且极亮','只存在于射电波段','来自原子而非分子'],ans:1,why:'粒子数反转下的受激发射类似激光，亮度温度极高。'},
+   {q:'维持天体 maser 需要什么条件？',opts:['极端高温','泵浦机制维持粒子数反转','强引力透镜','气体完全电离'],ans:1,why:'红外辐射、碰撞等泵浦不断把分子抽到高能级。'},
+   {q:'OH megamaser 常见于哪类系统？',opts:['椭圆星系中心','星系并合/星暴系统','球状星团','行星状星云'],ans:1,why:'并合触发星暴，提供强烈的红外泵浦场。'},
+   {q:'OH maser 线宽可窄至 kHz 量级，原因是？',opts:['气体温度接近绝对零度','受激发射的增益变窄','引力红移抵消','多普勒速度为零'],ans:1,why:'受激发射沿相干路径放大，谱线远窄于热运动预期。'}
+  ]},
+ {name:'CO(1-0)',tc:'#82b1ff',wave:'115 GHz',wl:'2.6×10³ μm（115 GHz）',band:'mm',pos:17,profile:[{p:1,c:0.5,w:0.34,a:0.95}],
+  desc:'CO 转动跃迁 J=1→0，冷分子气体最重要的示踪剂；典型轮廓呈抛物线形。',tip:'分子气体质量',lw:'云核 ~5 km/s；星系积分谱由转动致宽至数百 km/s',traces:'冷分子气体（H₂ 的替身示踪剂）',apply:'换算星系分子气体质量，检验恒星形成定律',fact:'H₂ 无偶极矩几乎不发光，CO 替它"代言"',
+  quiz:[
+   {q:'为什么用 CO 示踪 H₂ 分子气体？',opts:['CO 比 H₂ 多得多','H₂ 无永久偶极矩几乎不发光，CO 替它"代言"','CO 不受尘埃消光影响','H₂ 只存在于恒星内部'],ans:1,why:'同核双原子分子没有转动偶极辐射；CO 是最丰富的可观测分子。'},
+   {q:'CO(1-0) 跃迁能距仅约 5.5 K，说明它主要示踪？',opts:['百万度热气体','几千度电离气体','十几至几十 K 的冷分子云','恒星光球'],ans:2,why:'低能级跃迁在低温下即可激发，正对应分子云温度。'},
+   {q:'估算星系分子气体质量，主要测量？',opts:['CO 谱线积分强度','恒星光学亮度','X 射线流量','maser 数目'],ans:0,why:'CO 积分强度 × 经验转换因子 ≈ 分子气体质量。'},
+   {q:'巨分子云 CO 线宽 ~5 km/s，远大于同温度的热运动（~0.3 km/s），说明？',opts:['测量误差','云内存在湍流等非热运动','CO 已被电离','引力红移'],ans:1,why:'分子云高度湍动，非热运动主导线宽。'}
+  ]},
+ {name:'HCN(1-0)',tc:'#ff8a80',wave:'88.6 GHz',wl:'3.4×10³ μm（88.6 GHz）',band:'mm',pos:19,profile:[{g:1,c:0.5,w:0.09,a:0.9}],
+  desc:'HCN J=1→0 转动跃迁，示踪高密度分子气体，轮廓窄而陡。',tip:'致密分子气体',lw:'窄（~10–50 km/s，致密核）',traces:'高密度（>10⁴ cm⁻³）分子气体',apply:'追踪星暴核心的致密气体与恒星形成效率',fact:'HCN/CO 比值升高 = 致密气体占比增加',
+  quiz:[
+   {q:'相比 CO，HCN 更擅长示踪？',opts:['弥散冷气体','高密度（>10⁴ cm⁻³）分子气体','电离气体','原子气体'],ans:1,why:'HCN 偶极矩大，需要高临界密度才能有效激发。'},
+   {q:'HCN(1-0) 静频率 88.6 GHz 比 CO(1-0) 的 115 GHz？',opts:['更高','更低','相同','取决于红移'],ans:1,why:'HCN 的 J=1→0 能距更小，频率更低——但激发更难。'},
+   {q:'星暴星系核区常见 HCN/CO 比值？',opts:['下降到零','保持不变','显著升高','周期振荡'],ans:2,why:'致密气体占比升高，HCN 相对 CO 增强。'},
+   {q:'HCN 线宽窄（~10–50 km/s），反映其示踪的气体？',opts:['弥散的气体晕','致密且速度结构有序的核区','高温电离气体','高速外流'],ans:1,why:'致密核区速度弥散小，谱线窄。'}
+  ]},
+ {name:'Paβ',tc:'#ffe57f',wave:'1.28 μm',wl:'1.28 μm（234 THz）',band:'ir',pos:40,profile:[{g:1,c:0.5,w:0.11,a:0.9}],
+  desc:'氢帕邢系 β 线（n=5→3）复合发射，示踪近红外波段的电离气体与恒星形成。',tip:'红外电离气体',lw:'窄线 ~50–100 km/s；AGN 宽线可达数千 km/s',traces:'被尘埃遮挡的电离气体（n=5→3）',apply:'近红外透视星系核区的恒星形成',fact:'帕邢系成员，穿透尘埃能力远胜 Hα',
+  quiz:[
+   {q:'Paβ 位于哪个波段？',opts:['光学 4861 Å','近红外 1.28 μm','射电 21 cm','紫外 1549 Å'],ans:1,why:'帕邢系跃迁到 n=3 能级，落在近红外。'},
+   {q:'研究尘埃浓厚的星系核区，为何更常用 Paβ 而非 Hα？',opts:['它更亮','波长更长、受尘埃消光更小','它不受红移影响','它是禁线'],ans:1,why:'消光随波长变长迅速减弱，红外谱线透视能力更强。'},
+   {q:'Paβ 的跃迁是？',opts:['n=5→3','n=4→2','n=3→2','n=2→1'],ans:0,why:'帕邢系 β 即 n=5→3。'},
+   {q:'观测到 Paβ 线宽达 3000 km/s，最可能的来源是？',opts:['冷分子云','AGN 宽线区','星际尘埃吸收','仪器杂散光'],ans:1,why:'数千 km/s 的宽复合线是宽线区高速气体的标志。'}
+  ]},
+ {name:'H₂ S(1)',tc:'#ff8a80',wave:'2.12 μm',wl:'2.12 μm（142 THz）',band:'ir',pos:42,profile:[{g:1,c:0.45,w:0.05,a:0.95},{g:1,c:0.58,w:0.06,a:0.35}],
+  desc:'分子氢 1-0 S(1) 振动跃迁，激波或紫外泵浦加热的分子气体的窄发射线。',tip:'激波加热分子',lw:'窄（~10–100 km/s），激波区更宽',traces:'激波或紫外泵浦加热的暖分子气体',apply:'定位星系并合与外流中的激波',fact:'同核双原子没有偶极矩，只能靠四极跃迁发光',
+  quiz:[
+   {q:'H₂ 1-0 S(1) 发射通常指示什么环境？',opts:['平静的暗分子云','被激波或紫外泵浦加热的暖分子气体','电离氢区','吸积盘日冕'],ans:1,why:'H₂ 振动能级需要约 1000 K 以上才能显著布居。'},
+   {q:'H₂ 的转动-振动跃迁属于？',opts:['四极跃迁（无偶极矩）','共振吸收','自由-束缚跃迁','回旋辐射'],ans:0,why:'同核分子无偶极矩，只能靠跃迁概率较低的四极跃迁发光。'},
+   {q:'星系并合系统中探测到强 H₂ 线，最可能的解释是？',opts:['存在大质量黑洞','激波加热了分子气体','恒星金属丰度极高','存在原初气体云'],ans:1,why:'并合驱动的激波与湍流是 H₂ 线的典型来源。'},
+   {q:'激波区 H₂ 线比安静暗云中的更宽，主要因为？',opts:['温度更高且存在激波速度结构','尘埃消光更强','引力红移更强','maser 变窄'],ans:0,why:'激波加速并加热分子，线宽与亮度同步增强。'}
+  ]},
+ {name:'Ca II 三重线',tc:'#82b1ff',wave:'8542 Å',wl:'0.854 μm（351 THz）',band:'ir',pos:50,profile:[{d:1,c:0.30,w:0.045,a:0.62},{d:1,c:0.50,w:0.045,a:0.88},{d:1,c:0.68,w:0.045,a:0.62}],
+  desc:'Ca II 近红外三重线（8498/8542/8662 Å），晚型星与冷星际气体的强吸收特征。',tip:'色球活动',lw:'窄（星际 ~1–20 km/s；色球发射线心反转变宽）',traces:'冷气体与晚型星色球活动',apply:'恒星磁活动指标；星际视线成分分析',fact:'8498/8542/8662 三兄弟，起自激发态故非共振线',
+  quiz:[
+   {q:'Ca II 近红外三重线由哪三条组成？',opts:['3934/3969/4044 Å','8498/8542/8662 Å','5890/5896/6154 Å','6563/4861/4340 Å'],ans:1,why:'8498、8542、8662 Å 合称近红外三重线。'},
+   {q:'太阳光谱中 Ca II 8542 线心出现发射，指示？',opts:['太阳即将熄灭','色球磁活动增强','仪器杂散光','地球大气吸收'],ans:1,why:'Ca II 线心发射是经典的恒星磁活动指标。'},
+   {q:'与 Ca H&K 相比，三重线的关键差别？',opts:['起自激发态（非共振线）','它是发射线','来自中性钙 Ca I','物理上没有区别'],ans:0,why:'三重线下能级为激发态，不依赖基态布居。'},
+   {q:'星际 Ca II 吸收线极窄（~1 km/s 量级），直接说明？',opts:['气体温度很低（~100 K 量级）','存在强湍流','恒星高速自转','仪器分辨率不足'],ans:0,why:'线宽反映温度与湍流：窄线对应冷的中性气体。'}
+  ]},
+ {name:'Hα',tc:'#ff8a80',wave:'6563 Å',wl:'0.656 μm（457 THz）',band:'op',pos:58,profile:[{g:1,c:0.5,w:0.055,a:0.5},{g:1,c:0.5,w:0.16,a:0.68}],
+  desc:'氢巴耳末 α 线，电离氢区最亮的光学发射线；活动星系核中呈宽+窄复合轮廓。',tip:'恒星形成',lw:'窄线区 ~100 km/s；AGN 宽线区 1000–10000 km/s',traces:'电离氢区与恒星形成（n=3→2 复合）',apply:'光学巡天绘制恒星形成区与星系形态',fact:'太阳色球的单色像就是用 Hα 拍的；AGN 中呈宽+窄双成分',
+  quiz:[
+   {q:'Hα 属于哪一类谱线？',opts:['复合发射线','分子转动吸收线','受激发射（maser）','禁线'],ans:0,why:'电子复合后向低能级级联产生，n=3→2 是其中最亮的一条。'},
+   {q:'AGN 光谱中 Hα 呈"宽+窄"复合轮廓，宽成分来自？',opts:['窄线区','宽线区（吸积盘附近高速气体）','星际尘埃散射','恒星风吸收'],ans:1,why:'宽线区气体速度可达数千 km/s，谱线被多普勒效应大幅展宽。'},
+   {q:'光学巡天寻找星系中的恒星形成区，最常用哪条发射线？',opts:['[O III] 5007','HI 21cm','Hα 6563','Fe Kα'],ans:2,why:'Hα 是光学最亮的复合线，直接示踪电离氢区。'},
+   {q:'星系核的 Hα 同时有 ~100 km/s 窄成分与数千 km/s 宽成分，说明存在？',opts:['两颗恒星','窄线区与宽线区两个区域','双峰自转盘','两条不同谱线'],ans:1,why:'窄线区远离核、速度小；宽线区贴近黑洞、速度极大。'}
+  ]},
+ {name:'Hβ',tc:'#84ffff',wave:'4861 Å',wl:'0.486 μm（617 THz）',band:'op',pos:61,profile:[{g:1,c:0.5,w:0.10,a:0.85}],
+  desc:'氢巴耳末 β 线，HII 区与行星状星云的典型复合发射线。',tip:'消光诊断',lw:'窄（~数十 km/s），与 Hα 同源同宽',traces:'HII 区与行星状星云的复合线（n=4→2）',apply:'与 Hα 比值测尘埃消光；BPT 诊断图核心谱线',fact:'Hα/Hβ 理论比值 2.86，观测明显偏高即有尘埃消光',
+  quiz:[
+   {q:'Hα/Hβ 强度比远超理论值 2.86，最常见的解释是？',opts:['气体温度极高','尘埃消光（红化）','强烈的外流风','仪器色差'],ans:1,why:'尘埃对短波消光更强，Hβ 被压低，比值升高。'},
+   {q:'Hβ 与 Hα 同属哪个谱线系？',opts:['帕邢系','莱曼系','巴耳末系','布喇开系'],ans:2,why:'都是跃迁到 n=2 能级的氢复合线。'},
+   {q:'经典 BPT 诊断图除 Hβ、Hα 外还用哪条线？',opts:['[O III] 5007','Na D 5890','CO 115 GHz','Mg II 2798'],ans:0,why:'BPT 图以 [O III]/Hβ 与 [N II]/Hα 区分恒星形成与 AGN 电离。'},
+   {q:'Hβ 与 Hα 窄线宽度相近且同源，可用于？',opts:['交叉检验消光与电离结构','测量微波背景温度','标定 maser 增益','测定铁丰度'],ans:0,why:'同源复合线可互相印证物理条件的一致性。'}
+  ]},
+ {name:'[O III]',tc:'#b9f6ca',wave:'5007 Å',wl:'0.501 μm（599 THz）',band:'op',pos:60,profile:[{g:1,c:0.38,w:0.035,a:0.30},{g:1,c:0.62,w:0.035,a:0.90}],
+  desc:'O⁺⁺ 禁线双峰（4959/5007，强度约 1:3），高电离窄线区气体的示踪。',tip:'高电离气体',lw:'窄（~30–100 km/s），外流时出现蓝移翼',traces:'高电离 O⁺⁺ 气体：行星状星云与 AGN 窄线区',apply:'窄线宽度估计黑洞质量；BPT 诊断电离源',fact:'4959 与 5007 强度比恒为 1:3——量子力学的馈赠',
+  quiz:[
+   {q:'[O III] 名称中的方括号表示？',opts:['离子价态','禁线（跃迁概率极低）','观测存疑','双线'],ans:1,why:'禁线只在极稀薄气体中出现，实验室里几乎观测不到。'},
+   {q:'[O III] 4959 与 5007 两条线的强度比约为？',opts:['1:1','1:3','3:1','1:10'],ans:1,why:'由跃迁概率决定，恒为约 1:3。'},
+   {q:'星系光谱中 [O III] 很强，说明气体？',opts:['低温且中性','处于高电离状态（强辐射场或激波）','完全分子化','正在引力坍缩'],ans:1,why:'维持 O⁺⁺ 需要高能光子或激波。'},
+   {q:'[O III] 线廓出现宽而蓝移的翼，通常指示？',opts:['仪器伪影','电离气体外流（星系风）','双星系统','尘埃散射峰'],ans:1,why:'蓝移翼是朝向观测者的外流气体的多普勒特征。'}
+  ]},
+ {name:'Na D',tc:'#ffd180',wave:'5890 Å',wl:'0.589 μm（509 THz）',band:'op',pos:59,profile:[{d:1,c:0.42,w:0.048,a:0.72},{d:1,c:0.58,w:0.048,a:0.72}],
+  desc:'钠 D 双线（5890/5896 Å），星际冷气体与晚型星大气的吸收特征。',tip:'星系风外流',lw:'窄（星际 ~1–20 km/s）；星系风蓝移分量更宽',traces:'晚型星大气 + 冷星际气体',apply:'蓝移 Na D 吸收 = 星系风外流速度计',fact:'实验室里就是钠路灯的那对黄线',
+  quiz:[
+   {q:'Na D 双线两条子线的波长差约？',opts:['0.6 Å','6 Å','60 Å','600 Å'],ans:1,why:'5890 与 5896 Å，相隔约 6 Å。'},
+   {q:'星系光谱中 Na D 吸收显著蓝移且很深，常解释为？',opts:['波长定标错误','星系风（气体向外流）','恒星自转','引力红移'],ans:1,why:'朝向我们的外流气体使吸收分量整体蓝移。'},
+   {q:'除星际气体外，Na D 还常见于？',opts:['晚型星大气','白矮星表面','类星体吸积盘','宇宙微波背景'],ans:0,why:'钠在冷恒星大气中也产生强 D 线吸收。'},
+   {q:'星系 Na D 吸收呈深而蓝移的宽分量，说明？',opts:['外流星系风','恒星自转加快','红移测量错误','引力透镜放大'],ans:0,why:'外流气体朝我们运动且速度弥散大，形成蓝移宽吸收。'}
+  ]},
+ {name:'Ca H&K',tc:'#b388ff',wave:'3934 Å',wl:'0.393 μm（763 THz）',band:'op',pos:63,profile:[{d:1,c:0.40,w:0.05,a:0.90},{d:1,c:0.58,w:0.05,a:0.75}],
+  desc:'Ca II H&K 共振线（3934/3969 Å），恒星光谱中最深的吸收双谷。',tip:'老年恒星族群',lw:'窄而深（湍流/自转致宽数–数十 km/s）',traces:'晚型星大气（尤其老年恒星族群）',apply:'星系年龄与金属丰度诊断（Lick 指数）',fact:'恒星光谱里最深的吸收双谷',
+  quiz:[
+   {q:'Ca II H&K 属于什么类型的谱线？',opts:['共振吸收线（起自基态）','复合发射线','禁线','maser'],ans:0,why:'Ca II 由基态 4s 向 4p 的共振跃迁，吸收极深。'},
+   {q:'星系积分光谱中 Ca H&K 吸收很强，说明星系？',opts:['以年轻恒星为主','以老年恒星为主','没有恒星','正在剧烈星暴'],ans:1,why:'老年族群以冷（晚型）星为主，其 Ca 吸收强。'},
+   {q:'Ca II H&K 双线波长约在？',opts:['3934/3969 Å','5890/5896 Å','6563/4861 Å','8498/8542 Å'],ans:0,why:'K 线 3934 Å、H 线 3969 Å，位于蓝紫端。'},
+   {q:'Ca H&K 吸收宽约数十 km/s，主要来自？',opts:['星际湍流','恒星大气的湍流、自转与压强致宽','黑洞吸积盘','宇宙学红移'],ans:1,why:'恒星谱线宽度由大气物理（湍流/自转/压强）决定。'}
+  ]},
+ {name:'Lyα',tc:'#82b1ff',wave:'1216 Å',wl:'0.122 μm（2.47 PHz）',band:'uv',pos:74,profile:[{l:1,c:0.5,w:0.17,a:1.05}],
+  desc:'氢莱曼 α 线（n=2→1），紫外最强谱线；图中为阻尼氢吸收系统（DLA）的宽阻尼翼。',tip:'最远星系',lw:'极宽（DLA 阻尼翼跨数千 km/s）',traces:'中性氢 n=2→1 共振线',apply:'搜寻高红移 LAE 星系、探测宇宙再电离',fact:'柱密度极高时呈阻尼翼（DLA）——宇宙中最"宽"的吸收特征',
+  quiz:[
+   {q:'Lyα 的跃迁是？',opts:['n=2→1','n=3→2','n=4→2','连续谱→n=1'],ans:0,why:'莱曼系第一条：n=2→1，1216 Å。'},
+   {q:'Lyα 呈现宽大阻尼翼时，该吸收系统被称为？',opts:['DLA（阻尼 Lyα 系统）','Lyman-break 星系','WHIM','Baldwin 效应'],ans:0,why:'中性氢柱密度 ≥2×10²⁰ cm⁻² 时洛伦兹阻尼翼极宽。'},
+   {q:'Lyα 为什么适合搜寻最遥远的星系？',opts:['氢最丰富且红移后进入可观测窗口','它完全不受尘埃影响','它永远在光学波段','它只来自恒星'],ans:0,why:'年轻星系产生大量 Lyα 光子，高红移把它送入近红外/光学窗口。'},
+   {q:'DLA 的 Lyα 阻尼翼可跨数千 km/s，属于哪种致宽？',opts:['多普勒湍流致宽','洛伦兹阻尼致宽','仪器展宽','maser 增益变窄'],ans:1,why:'中性氢柱密度极高时，洛伦兹阻尼翼主导线廓。'}
+  ]},
+ {name:'C IV',tc:'#ffe57f',wave:'1549 Å',wl:'0.155 μm（1.94 PHz）',band:'uv',pos:72,profile:[{d:1,c:0.40,w:0.07,a:0.72},{g:1,c:0.57,w:0.075,a:0.80}],
+  desc:'三重电离碳共振线，AGN 与大质量恒星风的标志，典型 P Cygni 轮廓（发射+蓝移吸收）。',tip:'AGN 星风',lw:'极宽（AGN 风 FWHM ~1000–5000 km/s）',traces:'高温电离碳——AGN 风与宽线区',apply:'测量 AGN 外流速度与尺度、宽线区物理',fact:'P Cygni 轮廓：发射峰+蓝移吸收 = 朝我们刮的星风',
+  quiz:[
+   {q:'C IV 的 P Cygni 轮廓（发射峰+蓝移吸收）说明？',opts:['气体静止不动','存在朝向观测者运动的外流风','存在强磁场','双星系统'],ans:1,why:'外流气体挡在光源前方并朝我们运动，产生蓝移吸收。'},
+   {q:'"C IV" 指的是？',opts:['四价中性碳分子','失去 3 个电子的碳离子 C³⁺','碳的同位素','碳纳米管'],ans:1,why:'罗马数字 IV 表示原子失去 3 个电子。'},
+   {q:'C IV 常被用来研究 AGN 的什么？',opts:['尘埃含量','外流风与宽线区动力学','恒星质量','喷流偏振'],ans:1,why:'C IV 宽且常蓝移，是测量 AGN 风速的经典探针。'},
+   {q:'C IV 宽线且整体蓝移，说明 AGN 存在？',opts:['静止的气体盘','朝向我们的高速外流风','双黑洞并合','完整的尘埃环'],ans:1,why:'宽+蓝移=高速外流气体正朝观测者运动。'}
+  ]},
+ {name:'Mg II',tc:'#ff8a80',wave:'2798 Å',wl:'0.280 μm（1.07 PHz）',band:'uv',pos:70,profile:[{d:1,c:0.42,w:0.04,a:0.62},{d:1,c:0.58,w:0.04,a:0.62}],
+  desc:'Mg II 共振双线（2796/2803 Å），类星体与星系紫外光谱中常见的窄吸收双谷。',tip:'星系晕气体',lw:'窄（~数十–百余 km/s，星系晕冷气体）',traces:'类星体/星系晕中的冷电离气体',apply:'吸收线宇宙学：前景星系晕普查、红移测量',fact:'红移 z≈1 时双线整体移入地面可测的光学窗口',
+  quiz:[
+   {q:'Mg II 吸收双线的两条子线是？',opts:['2796/2803 Å','2790/2800 Å','2798/2801 Å','2796/2803 nm'],ans:0,why:'2796.35 与 2803.53 Å，间隔约 7.2 Å。'},
+   {q:'类星体视线上的 Mg II 吸收系统，吸收体通常是？',opts:['类星体自己的吸积盘','前景星系晕中的冷电离气体','地球电离层','暗物质本身'],ans:1,why:'吸收红移小于类星体红移，对应视线上的前景星系晕。'},
+   {q:'Mg II 静止波长在紫外，为何 z≈1 时地面望远镜可观测？',opts:['仪器分辨率提高','红移把双线移入光学波段','夜间大气更透明','它变成了发射线'],ans:1,why:'z≈1 时波长翻倍，2798 Å → 约 5600 Å，进入光学窗口。'},
+   {q:'类星体光谱中窄的 Mg II 吸收（~数十 km/s）来自？',opts:['宽线区气体','前景星系晕的冷气体','吸积盘内区','相对论喷流'],ans:1,why:'窄吸收对应冷且速度弥散小的星系晕气体。'}
+  ]},
+ {name:'Fe Kα',tc:'#b388ff',wave:'6.4 keV',wl:'1.94×10⁻⁴ μm（1.55 EHz）',band:'x',pos:95,profile:[{k:1,a:0.30,e:2.2,b:0.10},{g:1,c:0.68,w:0.016,a:0.82}],
+  desc:'冷物质 X 射线荧光线，黑洞/中子星吸积盘内区反射的标志，叠加在幂律连续谱上。',tip:'黑洞自旋',lw:'极宽且不对称（吸积盘相对论多普勒展宽）',traces:'吸积盘内区反射的冷物质荧光',apply:'测量黑洞自旋与吸积盘内半径',fact:'6.4 keV 是铁的指纹——铁也是恒星核合成的终点',
+  quiz:[
+   {q:'X 射线 Fe Kα 6.4 keV 由什么过程产生？',opts:['铁核放射性衰变','冷物质受 X 射线辐照后的荧光','铁的核聚变','同步辐射'],ans:1,why:'冷物质被辐照，K 壳层电离后去激发发出荧光光子。'},
+   {q:'吸积盘内区 Fe Kα 轮廓的不对称红翼可用于测量？',opts:['黑洞自旋与盘内半径','恒星金属丰度','星系距离','宇宙膨胀速率'],ans:0,why:'引力红移+多普勒效应刻画吸积盘内缘，直接联系黑洞自旋。'},
+   {q:'为什么铁的谱线在 X 射线天文学中最显著？',opts:['铁是宇宙中最丰富的元素','荧光产额高且铁是核合成终点元素','铁只存在于黑洞附近','其他元素不发光'],ans:1,why:'丰度中等偏上加上高荧光产额，使 Fe Kα 独树一帜。'},
+   {q:'Fe Kα 线廓宽且不对称（红翼延伸），源于？',opts:['气体热运动','吸积盘内区的相对论多普勒效应','星际散射','maser 作用'],ans:1,why:'强引力红移与多普勒效应共同刻画吸积盘内缘。'}
+  ]}
 ];
+const LINE_ORDER=[7,8,4,9,2,3,5,0,11,10,6,1,14,13,12,15];
+const CHAPTERS=[
+ {name:'第一章 · 电离气体与恒星形成',a:1,b:4},
+ {name:'第二章 · 分子云与冷气体',a:5,b:8},
+ {name:'第三章 · 恒星大气与受激发射',a:9,b:12},
+ {name:'第四章 · 活动星系核与深空',a:13,b:16}
+];
+let save=null,mode='level',curLevel=1,namesOn=true;
 let grid=null,tiles=[],sel=null,S=78;
 let score=0,combo=0,maxCombo=0,time=0,pairsLeft=0,hints=3,shufflesLeft=3,lastMatch=0,timerId=null,soundOn=true,audioCtx=null;
-let boardBox,pathLayer,info,legend,overlay,toastEl,hTime,hLeft,hScore,hCombo,btnHint,btnShuffle,btnSound,btnNew,btnAgain,ovTime,ovScore,ovCombo;
+let quiz=null;
+let boardBox,pathLayer,legend,toastEl,spTarget,spLeft;
+let hTime,hLeft,hScore,hCombo,btnHint,btnShuffle,btnSound,btnNames,btnRestart,btnBack,gTitle,gSub;
+let btnPlay,btnAtlas,btnChallenge,btnSoundM,btnReset,mProg,mGrid;
+let crCard,crGo,qStep,qScore,qText,qOpts,qWhy,qNext;
+let atProg,atGrid,atClose,dtCard,dtBtns,rTitle,rBody,rBtns;
 
 function shuffleArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a;}
 function hexA(hex,a){return hex+Math.round(a*255).toString(16).padStart(2,'0');}
 function fmt(t){const m=Math.floor(t/60),s=t%60;return (m<10?'0':'')+m+':'+(s<10?'0':'')+s;}
 function emptyGrid(){const g=[];for(let r=0;r<R;r++){g.push([]);for(let c=0;c<C;c++)g[r].push(null);}return g;}
+function boardSize(lvl){return lvl<=4?[4,4]:lvl<=12?[6,6]:[8,8];}
+function chapterOf(lvl){for(const ch of CHAPTERS)if(lvl>=ch.a&&lvl<=ch.b)return ch.name;return '';}
+function levelOfLine(li){return LINE_ORDER.indexOf(li)+1;}
+function collectedCount(){return Object.keys(save.stars).length;}
+function totalStars(){let t=0;for(const k in save.stars)t+=save.stars[k];return t;}
+function challengeUnlocked(){return collectedCount()>=16;}
+function firstUnwon(){for(let l=1;l<=16;l++)if(!save.won[l])return l;return 16;}
+function shuffleQ(q){const idx=shuffleArr([0,1,2,3]);return {text:q.q,opts:idx.map(i=>q.opts[i]),ans:idx.indexOf(q.ans),why:q.why};}
+function evenCounts(weights,total){
+ const n=weights.length;
+ if(total<2*n)return null;
+ const cnt=weights.map(()=>2);
+ const rem=total-2*n;
+ const sumW=weights.reduce((a,b)=>a+b,0);
+ const exact=weights.map(w=>rem*w/sumW);
+ const add=weights.map(w=>2*Math.floor(rem*w/sumW/2));
+ let got=add.reduce((a,b)=>a+b,0);
+ const order=weights.map((w,j)=>j).sort((a,b)=>exact[b]-exact[a]);
+ let i=0;
+ while(got<rem){add[order[i%order.length]]+=2;got+=2;i++;}
+ return cnt.map((c,j)=>c+add[j]);
+}
+function levelDeck(lvl){
+ const bs=boardSize(lvl),total=bs[0]*bs[1];
+ const nl=LINE_ORDER[lvl-1];
+ const prev=LINE_ORDER.slice(0,lvl-1);
+ const cnt=evenCounts(prev.map(()=>1).concat([2]),total);
+ const vals=[];
+ for(let i=0;i<prev.length;i++)for(let k=0;k<cnt[i];k++)vals.push(prev[i]);
+ for(let k=0;k<cnt[prev.length];k++)vals.push(nl);
+ return shuffleArr(vals);
+}
 
 function profilePath(comps){
  const N=120,x0=3,x1=61,yb=31,K=24;let d='';
@@ -208,12 +472,11 @@ function renderTile(t){
  const L=LINES[t.line],b=BANDS[L.band];
  t.el.style.setProperty('--bc',b.color);
  t.el.style.setProperty('--bt',hexA(b.color,0.16));
- t.el.innerHTML='<div class="tname'+(L.name.length>7?' sm':'')+'">'+L.name+'</div>'
+ t.el.innerHTML='<div class="tname'+(L.name.length>7?' sm':'')+'" style="color:'+L.tc+'">'+L.name+'</div>'
   +'<svg class="prof" viewBox="0 0 64 40" preserveAspectRatio="none"><line x1="3" y1="31" x2="61" y2="31"/><path d="'+profilePath(L.profile)+'"/></svg>'
   +'<div class="em"><i style="left:'+L.pos+'%"></i></div>'
-  +'<div class="tf"><span class="chip" style="background:'+b.color+'">'+b.name+'</span><span class="wv">'+L.wave+'</span></div>';
+  +'<div class="tf"><span class="chip" style="background:'+b.color+';color:'+(b.ink||'#0a0f1c')+'">'+b.name+'</span><span class="wv">'+L.wave+'</span></div>';
  t.el.title=L.name+'（'+b.name+'）：'+L.desc;
- placeTile(t);
 }
 function relayout(){
  const avail=Math.min(window.innerWidth-20,720);
@@ -226,12 +489,10 @@ function relayout(){
  pathLayer.style.left=(-S)+'px';pathLayer.style.top=(-S)+'px';
  for(const t of tiles)placeTile(t);
 }
-function buildBoard(){
- const olds=Array.from(boardBox.querySelectorAll('.tile'));
- for(const el of olds)el.remove();
+function buildBoard(vals,rows,cols){
+ ROWS=rows;COLS=cols;R=rows+2;C=cols+2;
+ Array.from(boardBox.querySelectorAll('.tile')).forEach(el=>el.remove());
  pathLayer.innerHTML='';
- const vals=[];
- for(let i=0;i<LINES.length;i++)for(let k=0;k<4;k++)vals.push(i);
  grid=emptyGrid();
  let tries=0;
  do{shuffleArr(vals);let idx=0;for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++)grid[r][c]=vals[idx++];tries++;}
@@ -246,6 +507,7 @@ function buildBoard(){
   t.el.addEventListener('animationend',e=>{if(e.animationName==='deal')t.el.classList.remove('pre');if(e.animationName==='pop')t.el.classList.remove('pop');});
   t.el.addEventListener('click',()=>onTileClick(t));
   renderTile(t);
+  placeTile(t);
   boardBox.appendChild(t.el);
   tiles.push(t);idx++;
  }
@@ -293,9 +555,12 @@ function eliminate(a,b,path){
  lastMatch=now;maxCombo=Math.max(maxCombo,combo);
  const pts=10+(combo-1)*5;score+=pts;
  floatScore(a,b,pts,combo);
+ const L=LINES[a.line];
+ renderClicked(a.line);
+ const f=BANDFREQ[L.band];
+ beep(f,0.06,'sine',0.05);setTimeout(()=>beep(f*1.26,0.09,'sine',0.05),60);
  pairsLeft--;updateHUD();
- beep(660,0.06);setTimeout(()=>beep(880,0.08),60);
- if(pairsLeft===0){win();return;}
+ if(pairsLeft===0){if(mode==='challenge')winChallenge();else winLevel();return;}
  if(!gridPair()){toast('没有可消除的组合，自动洗牌');setTimeout(()=>doShuffle(true),550);}
 }
 function doShuffle(auto){
@@ -328,13 +593,42 @@ function updateHUD(){
 }
 function updateTime(){hTime.textContent=fmt(time);}
 function showInfo(t){
- const L=LINES[t.line],b=BANDS[L.band];
- info.innerHTML='<b style="color:'+b.color+'">'+L.name+' · '+L.wave+' · '+b.name+'波段</b><span> — '+L.desc+'</span>';
+ renderClicked(t.line);
+}
+function spLineHTML(li){
+ const L=LINES[li],b=BANDS[L.band],bd='border-top-color:'+hexA(b.color,.4)+';';
+ return '<div class="spBand"><span class="spBadge" style="background:'+b.color+';color:'+(b.ink||'#0a0f1c')+'">'+b.name+'波段</span></div>'
+  +'<div class="spName" style="color:'+L.tc+'">'+L.name+'<span class="wv">'+L.wl+'</span></div>'
+  +'<div class="spDesc">'+L.desc+'</div>'
+  +'<svg class="prof" style="height:40px" viewBox="0 0 64 40" preserveAspectRatio="none"><line x1="3" y1="31" x2="61" y2="31"/><path d="'+profilePath(L.profile)+'"/></svg>'
+  +'<div class="spMod" style="'+bd+'"><i style="color:'+b.color+'">示踪</i>'+L.traces+'</div>'
+  +'<div class="spMod" style="'+bd+'"><i style="color:'+b.color+'">线宽</i>'+L.lw+'</div>'
+  +'<div class="spMod" style="'+bd+'"><i style="color:'+b.color+'">应用</i>'+L.apply+'</div>'
+  +'<div class="spMod" style="'+bd+'"><i style="color:'+b.color+'">冷知识</i>'+L.fact+'</div>';
+}
+function renderTarget(li){
+ if(li===null){
+  spTarget.innerHTML='<div class="spSecTitle">挑战卡池</div>'
+   +'<div class="spPool">'+Object.keys(BANDS).map(k=>'<span class="spBadge" style="background:'+BANDS[k].color+';color:'+(BANDS[k].ink||'#0a0f1c')+'">'+BANDS[k].name+'</span>').join('')+'</div>'
+   +'<div style="color:var(--sub);font-size:11.5px;margin-top:7px">全 16 种谱线随机出现 · 看曲线认谱线</div>';
+  return;
+ }
+ spTarget.innerHTML='<div class="spSecTitle">本关目标卡 · '+LINES[li].name+'</div>'+spLineHTML(li);
+}
+function renderClicked(li){
+ if(li===null||li===undefined){
+  spLeft.innerHTML='<div class="spSecTitle">点击档案</div>'
+   +'<div style="color:var(--sub)">点击方块查看档案 · 相同谱线、两折以内连通即可消除。</div>';
+  return;
+ }
+ spLeft.innerHTML='<div class="spSecTitle">点击档案</div>'+spLineHTML(li);
 }
 function buildLegend(){
  let h='';
  for(const k in BANDS){const b=BANDS[k];h+='<span class="lg"><i style="background:'+b.color+'"></i>'+b.name+'<em>'+b.range+'</em></span>';}
- h+='<span class="lg" style="color:#6b7a94">方块底部彩条上的白色刻度 = 该谱线在电磁波谱上的位置</span>';
+ h+='<span class="lg" style="color:#6b7a94">文字颜色 = 波段内波长序：偏红波长长 · 偏蓝波长短</span>';
+ h+='<span class="lg" style="color:#6b7a94">音高随频率升高：射电低沉 · X 射线尖锐</span>';
+ h+='<span class="lg" style="color:#6b7a94">底部彩条白刻度 = 谱线在电磁波谱上的位置</span>';
  legend.innerHTML=h;
 }
 let toastTimer=null;
@@ -357,30 +651,246 @@ function beep(freq,dur,type,gain,delay){
 }
 function startTimer(){stopTimer();timerId=setInterval(()=>{time++;updateTime();},1000);}
 function stopTimer(){if(timerId){clearInterval(timerId);timerId=null;}}
-function win(){
+
+function loadSave(){
+ try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.v===1)return s;}catch(e){}
+ return {v:1,stars:{},won:{},best:0,sound:true};
+}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(save));}catch(e){}}
+
+function showScreen(id){
+ hideOvls();
+ document.getElementById('menu').classList.toggle('on',id==='menu');
+ document.getElementById('game').classList.toggle('on',id==='game');
+}
+function showOvl(o){o.classList.add('show');}
+function hideEl(o){o.classList.remove('show');}
+function hideOvls(){document.querySelectorAll('.ovl').forEach(o=>o.classList.remove('show'));}
+function mkBtn(t,fn,primary){const b=document.createElement('button');b.className='big'+(primary?' primary':'');b.textContent=t;b.addEventListener('click',fn);return b;}
+function showResult(title,body,btns){
+ hideOvls();
+ rTitle.textContent=title;rBody.innerHTML=body;
+ rBtns.innerHTML='';
+ btns.forEach((b,i)=>rBtns.appendChild(mkBtn(b.t,b.fn,i===0)));
+ showOvl(resultOvl);
+}
+function setNames(on){
+ namesOn=on;
+ boardBox.classList.toggle('nonames',!on);
+ btnNames.textContent='名称 '+(on?'开':'关');
+}
+function setupRound(title,sub,vals,rows,cols,names){
+ gTitle.textContent=title;gSub.textContent=sub;
+ buildBoard(vals,rows,cols);
+ score=0;combo=0;maxCombo=0;time=0;hints=3;shufflesLeft=3;lastMatch=0;
+ updateHUD();updateTime();
+ setNames(names);
+ renderClicked(null);
+ showScreen('game');
+ startTimer();
+}
+function startLevel(lvl){
+ mode='level';curLevel=lvl;
+ const li=LINE_ORDER[lvl-1],bs=boardSize(lvl);
+ setupRound('第 '+lvl+' 关 · '+chapterOf(lvl),'新谱线：'+LINES[li].name+' · '+LINES[li].wl,levelDeck(lvl),bs[0],bs[1],true);
+ renderTarget(li);
+ toast('第 '+lvl+' 关 · '+LINES[li].name);
+}
+function startChallenge(){
+ if(!challengeUnlocked()){toast('集齐 16 张谱线卡后解锁挑战');return;}
+ mode='challenge';
+ const vals=[];for(let i=0;i<16;i++)for(let k=0;k<4;k++)vals.push(i);
+ setupRound('分数挑战','全 16 种谱线 · 看曲线认谱线',shuffleArr(vals),8,8,false);
+ renderTarget(null);
+}
+function winLevel(){
  stopTimer();
- ovTime.textContent=fmt(time);ovScore.textContent=score;ovCombo.textContent='×'+maxCombo;
- overlay.classList.add('show');
+ save.won[curLevel]=true;persist();
+ const li=LINE_ORDER[curLevel-1];
  [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.14,'triangle',0.05),i*130));
+ setTimeout(()=>{
+  if(!(li in save.stars))showCardReveal(li);
+  else showResult('第 '+curLevel+' 关完成！','用时 '+fmt(time)+' · 得分 '+score+' · 最高连击 ×'+maxCombo,[
+   {t:'重测升星',fn:()=>startQuiz(li,'retest','level')},
+   {t:'重玩本关',fn:()=>startLevel(curLevel)},
+   {t:'返回菜单',fn:showMenu}
+  ]);
+ },600);
+}
+function winChallenge(){
+ stopTimer();
+ if(score>save.best){save.best=score;persist();}
+ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.14,'triangle',0.05),i*130));
+ setTimeout(()=>showResult('挑战完成！','用时 '+fmt(time)+' · 得分 '+score+'（最高 '+save.best+'）· 最高连击 ×'+maxCombo,[
+  {t:'再来一局',fn:startChallenge},
+  {t:'返回菜单',fn:showMenu}
+ ]),600);
+}
+function cardHTML(li,big){
+ const L=LINES[li],b=BANDS[L.band];
+ let h='<div class="bigcard" style="--bc:'+b.color+';--bt:'+hexA(b.color,.16)+'">';
+ h+='<div class="tf" style="margin-bottom:6px"><span class="chip" style="background:'+b.color+';color:'+(b.ink||'#0a0f1c')+'">'+b.name+'</span><span class="wv">'+L.wl+'</span></div>';
+ h+='<div class="cname" style="color:'+L.tc+'">'+L.name+'</div>';
+ h+='<svg class="prof" viewBox="0 0 64 40" preserveAspectRatio="none"><line x1="3" y1="31" x2="61" y2="31"/><path d="'+profilePath(L.profile)+'"/></svg>';
+ h+='<div class="em"><i style="left:'+L.pos+'%"></i></div>';
+ if(big) h+='<div class="cb"><p><i>示踪</i>'+L.traces+'</p><p><i>线宽</i>'+L.lw+'</p><p><i>应用</i>'+L.apply+'</p><p><i>冷知识</i>'+L.fact+'</p></div>';
+ h+='</div>';
+ return h;
+}
+function showCardReveal(li){
+ hideOvls();
+ crCard.innerHTML=cardHTML(li,true);
+ crGo.onclick=()=>startQuiz(li,'collect','level');
+ showOvl(cardOvl);
+ beep(660,0.1,'triangle',0.05);setTimeout(()=>beep(990,0.12,'triangle',0.05),110);
+}
+function startQuiz(li,kind,from){
+ const pool=shuffleArr(LINES[li].quiz.slice());
+ let raw;
+ if(kind==='collect'){
+  const revs=Object.keys(save.stars).map(Number).filter(x=>x!==li);
+  let third;
+  if(revs.length){const rl=revs[Math.floor(Math.random()*revs.length)];third=LINES[rl].quiz[Math.floor(Math.random()*LINES[rl].quiz.length)];}
+  else third=pool[2];
+  raw=[pool[0],pool[1],third];
+ }else raw=pool.slice(0,3);
+ quiz={li:li,kind:kind,from:from,qs:shuffleArr(raw.map(shuffleQ)),i:0,ok:0};
+ renderQ();
+ hideOvls();showOvl(quizOvl);
+}
+function renderQ(){
+ const q=quiz.qs[quiz.i];
+ qStep.textContent='谱线问答 · 第 '+(quiz.i+1)+'/'+quiz.qs.length+' 题';
+ qScore.textContent='正确 '+quiz.ok;
+ qText.textContent=q.text;
+ qWhy.textContent='';qNext.style.display='none';
+ qOpts.innerHTML='';
+ q.opts.forEach((o,i)=>{
+  const btn=document.createElement('button');
+  btn.className='qopt';btn.textContent=o;
+  btn.addEventListener('click',()=>answerQ(i,btn));
+  qOpts.appendChild(btn);
+ });
+}
+function answerQ(i,btn){
+ const q=quiz.qs[quiz.i];
+ Array.from(qOpts.children).forEach((b,j)=>{b.disabled=true;if(j===q.ans)b.classList.add('ok');});
+ if(i===q.ans){quiz.ok++;beep(784,0.08,'sine',0.04);}
+ else{btn.classList.add('bad');beep(196,0.12,'square',0.03);}
+ qWhy.textContent=(i===q.ans?'答对了！':'正确答案：'+q.opts[q.ans]+'。')+q.why;
+ qNext.style.display='inline-block';
+ qNext.textContent=quiz.i===quiz.qs.length-1?'完成':'下一题';
+ qScore.textContent='正确 '+quiz.ok;
+}
+function quizDone(){
+ const li=quiz.li,first=!(li in save.stars);
+ const prev=save.stars[li]||0;
+ if(quiz.ok>prev)save.stars[li]=quiz.ok;
+ persist();
+ const st='★'.repeat(quiz.ok)+'☆'.repeat(3-quiz.ok);
+ const col=collectedCount(),ts=totalStars();
+ const btns=[];
+ if(quiz.kind==='collect'&&quiz.from==='level'){
+  if(curLevel<16)btns.push({t:'下一关',fn:()=>startLevel(curLevel+1)});
+  else btns.push({t:'进入分数挑战！',fn:startChallenge});
+  btns.push({t:'重测升星',fn:()=>startQuiz(li,'retest','level')});
+  btns.push({t:'返回菜单',fn:showMenu});
+  showResult(first?'新卡已收入图鉴！':'问答完成',st+'<br>图鉴 '+col+'/16 · ★'+ts+'/48',btns);
+ }else if(quiz.kind==='collect'){
+  btns.push({t:'返回图集',fn:openAtlas});
+  btns.push({t:'返回菜单',fn:showMenu});
+  showResult('新卡已收入图鉴！',st+'<br>图鉴 '+col+'/16 · ★'+ts+'/48',btns);
+ }else{
+  if(quiz.from==='atlas')btns.push({t:'再测一次',fn:()=>startQuiz(li,'retest','atlas')});
+  else btns.push({t:'再测一次',fn:()=>startQuiz(li,'retest','level')});
+  if(quiz.from==='atlas')btns.push({t:'返回图集',fn:openAtlas});
+  btns.push({t:'返回菜单',fn:showMenu});
+  showResult('重测完成','本次 '+st+'<br>该卡当前 ★'+save.stars[li]+'/3',btns);
+ }
+ quiz=null;
+}
+function openAtlas(){renderAtlas();hideOvls();showOvl(atlasOvl);}
+function renderAtlas(){
+ const order=LINES.map((_,i)=>i).sort((a,b)=>LINES[a].pos-LINES[b].pos);
+ atProg.innerHTML='已收集 <b>'+collectedCount()+'/16</b> · 总星级 <b>★'+totalStars()+'/48</b> · 按波长从长到短排列';
+ let h='';
+ for(const li of order){
+  const L=LINES[li],b=BANDS[L.band],lv=levelOfLine(li),st=save.stars[li];
+  let cls='acard',foot;
+  if(st===undefined){
+   if(save.won[lv]){cls+=' wait';foot='可答题';}
+   else{cls+=' lock';foot='第 '+lv+' 关解锁';}
+  }else foot='<span class="st">'+'★'.repeat(st)+'☆'.repeat(3-st)+'</span>';
+  h+='<div class="'+cls+'" data-li="'+li+'" style="--bc:'+b.color+';--bt:'+hexA(b.color,.14)+'">'
+   +'<div class="aname" style="color:'+(cls.indexOf('lock')>=0?'#9fb0c8':L.tc)+'">'+(cls.indexOf('lock')>=0?'？？？':L.name)+'</div>'
+   +'<svg class="prof" viewBox="0 0 64 40" preserveAspectRatio="none"><line x1="3" y1="31" x2="61" y2="31"/><path d="'+profilePath(L.profile)+'"/></svg>'
+   +'<div class="afoot">'+foot+'</div></div>';
+ }
+ atGrid.innerHTML=h;
+ atGrid.querySelectorAll('.acard').forEach(el=>{
+  const li=+el.dataset.li;
+  el.addEventListener('click',()=>atlasClick(li));
+ });
+}
+function atlasClick(li){
+ const st=save.stars[li],lv=levelOfLine(li);
+ if(st===undefined){
+  if(save.won[lv])startQuiz(li,'collect','atlas');
+  else toast('完成第 '+lv+' 关后解锁');
+ }else{
+  dtCard.innerHTML=cardHTML(li,true);
+  dtBtns.innerHTML='';
+  dtBtns.appendChild(mkBtn('重测升星',()=>startQuiz(li,'retest','atlas'),true));
+  dtBtns.appendChild(mkBtn('关闭',()=>hideEl(detailOvl)));
+  showOvl(detailOvl);
+ }
+}
+function renderMenu(){
+ mProg.innerHTML='图鉴 <b>'+collectedCount()+'/16</b> · 星级 <b>★'+totalStars()+'/48</b>'+(save.best>0?' · 挑战最高分 <b>'+save.best+'</b>':'');
+ const n=firstUnwon();
+ btnPlay.textContent=collectedCount()===0?'开始闯关':'继续闯关 · 第 '+n+' 关';
+ btnChallenge.textContent=challengeUnlocked()?'分数挑战':'分数挑战（集齐 16 卡解锁）';
+ btnChallenge.disabled=!challengeUnlocked();
+ let h='';
+ for(const chp of CHAPTERS){
+  h+='<div class="chp"><div class="chname">'+chp.name+'</div><div class="lvls">';
+  for(let l=chp.a;l<=chp.b;l++){
+   const li=LINE_ORDER[l-1],L=LINES[li];
+   const unlocked=l===1||save.won[l-1];
+   if(!unlocked)h+='<button class="lvl lock" disabled>第'+l+'关</button>';
+   else{
+    const st=save.stars[li]||0;
+    h+='<button class="lvl'+(l===n?' cur':'')+(save.won[l]?' done':'')+'" data-lvl="'+l+'">'+L.name+'<small>'+(save.won[l]?(st>0?'★'.repeat(st):'已通关'):'未完成')+'</small></button>';
+   }
+  }
+  h+='</div></div>';
+ }
+ mGrid.innerHTML=h;
+ mGrid.querySelectorAll('.lvl[data-lvl]').forEach(b=>b.addEventListener('click',()=>startLevel(+b.dataset.lvl)));
+}
+function showMenu(){stopTimer();showScreen('menu');renderMenu();}
+function updateSoundBtns(){
+ btnSound.textContent='音效 '+(soundOn?'开':'关');
+ btnSoundM.textContent='音效 '+(soundOn?'开':'关');
+}
+function toggleSound(){
+ soundOn=!soundOn;save.sound=soundOn;persist();updateSoundBtns();
+}
+function resetProgress(){
+ if(!confirm('确定重置全部进度吗？'))return;
+ save={v:1,stars:{},won:{},best:0,sound:soundOn};
+ persist();renderMenu();toast('进度已重置');
 }
 function newGame(){
- overlay.classList.remove('show');
- stopTimer();
- score=0;combo=0;maxCombo=0;time=0;hints=3;shufflesLeft=3;lastMatch=0;
- info.textContent='点击方块查看谱线说明 · 颜色代表波段 · 曲线为典型线型';
- updateTime();
- buildBoard();
- updateHUD();
- startTimer();
- toast('开始！找出相同谱线，两折以内连通即可消除');
+ if(mode==='challenge')startChallenge();else startLevel(curLevel);
 }
 function init(){
  boardBox=document.getElementById('boardBox');
  pathLayer=document.getElementById('pathLayer');
- info=document.getElementById('info');
  legend=document.getElementById('legend');
- overlay=document.getElementById('overlay');
  toastEl=document.getElementById('toast');
+ spTarget=document.getElementById('spTarget');
+ spLeft=document.getElementById('spLeft');
  hTime=document.getElementById('hTime');
  hLeft=document.getElementById('hLeft');
  hScore=document.getElementById('hScore');
@@ -388,58 +898,125 @@ function init(){
  btnHint=document.getElementById('btnHint');
  btnShuffle=document.getElementById('btnShuffle');
  btnSound=document.getElementById('btnSound');
- btnNew=document.getElementById('btnNew');
- btnAgain=document.getElementById('btnAgain');
- ovTime=document.getElementById('ovTime');
- ovScore=document.getElementById('ovScore');
- ovCombo=document.getElementById('ovCombo');
+ btnNames=document.getElementById('btnNames');
+ btnRestart=document.getElementById('btnRestart');
+ btnBack=document.getElementById('btnBack');
+ gTitle=document.getElementById('gTitle');
+ gSub=document.getElementById('gSub');
+ btnPlay=document.getElementById('btnPlay');
+ btnAtlas=document.getElementById('btnAtlas');
+ btnChallenge=document.getElementById('btnChallenge');
+ btnSoundM=document.getElementById('btnSoundM');
+ btnReset=document.getElementById('btnReset');
+ mProg=document.getElementById('mProg');
+ mGrid=document.getElementById('mGrid');
+ crCard=document.getElementById('crCard');
+ crGo=document.getElementById('crGo');
+ qStep=document.getElementById('qStep');
+ qScore=document.getElementById('qScore');
+ qText=document.getElementById('qText');
+ qOpts=document.getElementById('qOpts');
+ qWhy=document.getElementById('qWhy');
+ qNext=document.getElementById('qNext');
+ atProg=document.getElementById('atProg');
+ atGrid=document.getElementById('atGrid');
+ atClose=document.getElementById('atClose');
+ dtCard=document.getElementById('dtCard');
+ dtBtns=document.getElementById('dtBtns');
+ rTitle=document.getElementById('rTitle');
+ rBody=document.getElementById('rBody');
+ rBtns=document.getElementById('rBtns');
+ save=loadSave();
+ soundOn=save.sound!==false;
  buildLegend();
+ btnPlay.addEventListener('click',()=>startLevel(firstUnwon()));
+ btnAtlas.addEventListener('click',openAtlas);
+ btnChallenge.addEventListener('click',startChallenge);
+ btnSoundM.addEventListener('click',toggleSound);
+ btnReset.addEventListener('click',resetProgress);
  btnHint.addEventListener('click',doHint);
  btnShuffle.addEventListener('click',()=>{if(shufflesLeft<=0){toast('洗牌次数已用完');return;}doShuffle(false);});
- btnSound.addEventListener('click',()=>{soundOn=!soundOn;btnSound.textContent='音效 '+(soundOn?'开':'关');});
- btnNew.addEventListener('click',newGame);
- btnAgain.addEventListener('click',newGame);
+ btnSound.addEventListener('click',toggleSound);
+ btnNames.addEventListener('click',()=>setNames(!namesOn));
+ btnRestart.addEventListener('click',newGame);
+ btnBack.addEventListener('click',showMenu);
+ qNext.addEventListener('click',()=>{quiz.i++;if(quiz.i<quiz.qs.length)renderQ();else quizDone();});
+ atClose.addEventListener('click',()=>hideEl(atlasOvl));
  window.addEventListener('resize',relayout);
- newGame();
+ updateSoundBtns();
+ renderMenu();
 }
 if(typeof document!=='undefined'){init();}
 else{
+ let bad=0;const A=(c,m)=>{console.assert(c,m);if(!c)bad++;};
  grid=emptyGrid();
  grid[1][1]=0;grid[1][5]=0;
- console.assert(JSON.stringify(findPath([1,1],[1,5]))==='[[1,1],[1,5]]','T1 straight');
+ A(JSON.stringify(findPath([1,1],[1,5]))==='[[1,1],[1,5]]','T1 straight');
  grid[3][3]=0;
- console.assert(findPath([1,1],[3,3])&&findPath([1,1],[3,3]).length===3,'T2 one turn');
+ A(findPath([1,1],[3,3])&&findPath([1,1],[3,3]).length===3,'T2 one turn');
  grid[1][3]=1;grid[3][1]=1;
- console.assert(findPath([1,1],[3,3])&&findPath([1,1],[3,3]).length===4,'T3 two turns');
+ A(findPath([1,1],[3,3])&&findPath([1,1],[3,3]).length===4,'T3 two turns');
  grid=emptyGrid();
  grid[1][1]=0;grid[1][8]=0;grid[1][4]=1;
  const t4=findPath([1,1],[1,8]);
- console.assert(t4&&t4.length===4&&t4.some(p=>p[0]===0),'T4 border route');
+ A(t4&&t4.length===4&&t4.some(p=>p[0]===0),'T4 border route');
  grid=emptyGrid();
  grid[1][1]=0;grid[1][3]=0;
  for(let r=0;r<=2;r++)for(let c=0;c<=4;c++){if((r===1&&c===1)||(r===1&&c===3))continue;grid[r][c]=1;}
- console.assert(findPath([1,1],[1,3])===null,'T5 no path');
- console.assert(LINES.length===16,'T6 catalog size');
- console.assert(LINES.length*4===COLS*ROWS,'T7 board fill');
- for(const L of LINES){
+ A(findPath([1,1],[1,3])===null,'T5 no path');
+ A(LINES.length===16,'T6 catalog size');
+ for(let i=0;i<LINES.length;i++){const L=LINES[i];
+  A(BANDS[L.band]!==undefined,'T7 band '+L.name);
+  A(typeof L.desc==='string'&&L.desc.length>0,'T7 desc '+L.name);
+  A(typeof L.lw==='string'&&L.lw.length>0,'T7 lw '+L.name);
+  A(typeof L.traces==='string'&&L.traces.length>0,'T7 traces '+L.name);
+  A(typeof L.apply==='string'&&L.apply.length>0,'T7 apply '+L.name);
+  A(typeof L.fact==='string'&&L.fact.length>0,'T7 fact '+L.name);
+  A(typeof L.tip==='string'&&L.tip.length>0,'T7 tip '+L.name);
+  A(typeof L.wl==='string'&&L.wl.length>0,'T7 wl '+L.name);
+  A(L.quiz.length>=3,'T7 quiz len '+L.name);
+  const seen={};
+  for(const q of L.quiz){
+   A(q.opts&&q.opts.length===4,'T7 opts '+L.name);
+   A(typeof q.ans==='number'&&q.ans>=0&&q.ans<4,'T7 ans '+L.name);
+   A(typeof q.why==='string'&&q.why.length>0,'T7 why '+L.name);
+   A(!seen[q.q],'T7 dup q '+L.name);seen[q.q]=1;
+  }
   const d=profilePath(L.profile);
-  console.assert(d.charAt(0)==='M'&&d.indexOf('L')>0,'T8 profile '+L.name);
-  console.assert(L.pos>=0&&L.pos<=100,'T9 pos '+L.name);
+  A(d.charAt(0)==='M'&&d.indexOf('L')>0,'T8 profile '+L.name);
+  A(L.pos>=0&&L.pos<=100,'T9 pos '+L.name);
  }
- const vals=[];
- for(let i=0;i<LINES.length;i++)for(let k=0;k<4;k++)vals.push(i);
+ A(LINE_ORDER.length===16,'T10 order len');
+ A(LINE_ORDER.slice().sort((a,b)=>a-b).every((v,i)=>v===i),'T10 perm');
+ A(LINES.every(L=>typeof L.tc==='string'&&/^#[0-9a-fA-F]{6}$/.test(L.tc)),'T13 tc format');
+ const byBand={};
+ for(const L of LINES){(byBand[L.band]=byBand[L.band]||[]).push(L.tc);}
+ for(const k in byBand)A(new Set(byBand[k]).size===byBand[k].length,'T13 tc unique in '+k);
+ for(let l=1;l<=16;l++){
+  const bs=boardSize(l),total=bs[0]*bs[1];
+  const prev=LINE_ORDER.slice(0,l-1);
+  const cnt=evenCounts(prev.map(()=>1).concat([2]),total);
+  A(cnt&&cnt.length===l,'T11 cnt len '+l);
+  let sum=0,mx=0;
+  for(let i=0;i<cnt.length;i++){A(cnt[i]%2===0&&cnt[i]>=2,'T11 even '+l);sum+=cnt[i];if(i<prev.length&&cnt[i]>mx)mx=cnt[i];}
+  A(sum===total,'T11 sum '+l);
+  A(cnt[prev.length]>=mx,'T11 new dominant '+l);
+  A(levelDeck(l).length===total,'T11 deck '+l);
+ }
+ ROWS=6;COLS=6;R=8;C=8;
  grid=emptyGrid();
- const put=()=>{const v=vals.slice();shuffleArr(v);let i=0;for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++)grid[r][c]=v[i++];};
- put();
+ let deck=levelDeck(5),idx=0;
+ for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++)grid[r][c]=deck[idx++];
  let removed=0,reshuffles=0,guard=0;
- while(removed<64&&guard<20000){
+ while(removed<36&&guard<20000){
   guard++;
   const mv=gridPair();
   if(mv){grid[mv[0][0]][mv[0][1]]=null;grid[mv[1][0]][mv[1][1]]=null;removed+=2;}
-  else{put();reshuffles++;}
+  else{deck=levelDeck(5);idx=0;for(let r=1;r<=ROWS;r++)for(let c=1;c<=COLS;c++)grid[r][c]=deck[idx++];reshuffles++;}
  }
- console.assert(removed===64,'T10 sim completion');
- console.log('SELF-TEST OK · sim removed='+removed+' reshuffles='+reshuffles+' iters='+guard);
+ A(removed===36,'T12 sim completion');
+ console.log('SELF-TEST '+(bad?'FAILED bad='+bad:'OK')+' · sim removed='+removed+' reshuffles='+reshuffles+' iters='+guard);
+ if(typeof process!=='undefined')process.exitCode=bad?1:0;
 }
 </script>
 </body>
